@@ -15,8 +15,8 @@ import java.util.*;
  * 	Guice.createInjector(
  * 		...
  * 		new CommandLineModule(args) // command-line options
- * 			.bind(HomeDir.class, "home", "data") // home directory
- * 			.bind(DebugMode.class, "debug", "none") // debug mode
+ * 			.bind(HomeDir.class, &quot;home&quot;, &quot;data&quot;) // home directory
+ * 			.bind(DebugMode.class, &quot;debug&quot;, &quot;none&quot;) // debug mode
  * 			...
  * 		);
  * 
@@ -59,7 +59,8 @@ public class CommandLineModule extends AbstractModule
 	}
 	
 	/**
-	 * Sets the default value for the specified key if it was not supplied in the arguments to the constructor.
+	 * Binds the specified annotation to the value of the specified command-line option. If the value is not supplied at
+	 * the command-line, the specified default value will be bound.
 	 * 
 	 * @param binding the binding annotation that will be used to inject the value as a constant.
 	 * @param key the command-line switch.
