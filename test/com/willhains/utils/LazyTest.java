@@ -12,7 +12,7 @@ public class LazyTest
 		final Object o2 = _obj.get();
 		assertSame(o1, o2);
 	}
-
+	
 	private final Lazy<Object> _obj = new Lazy<Object>()
 	{
 		@Override
@@ -21,19 +21,19 @@ public class LazyTest
 			return new Object();
 		}
 	};
-
+	
 	@Test
 	public void testCircularRef() throws Exception
 	{
 		try
-        {
-	        _lazyA.get();
-	        fail("should have thrown IllegalStateException");
-        }
-        catch (Exception e)
-        {
-	        assertEquals("Circular reference detected", e.getMessage());
-        }
+		{
+			_lazyA.get();
+			fail("should have thrown IllegalStateException");
+		}
+		catch(Exception e)
+		{
+			assertEquals("Circular reference detected", e.getMessage());
+		}
 	}
 	
 	private final Lazy<Object> _lazyA = new Lazy<Object>()
