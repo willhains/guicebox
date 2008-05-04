@@ -1,16 +1,22 @@
 package com.willhains.utils;
 
-public abstract class Lazy<E>
+/**
+ * Utility for lazy initialisation. Not thread safe.
+ * 
+ * @param <V> the value type.
+ * 
+ * @author willhains
+ */
+public abstract class Lazy<V>
 {
-	private E _value;
-
+	private V _value;
 	private boolean _initialising;
-
-	protected abstract E create();
-
-	public final E get()
+	
+	protected abstract V create();
+	
+	public final V get()
 	{
-		if (_initialising) throw new IllegalStateException("Circular reference detected");
+		if(_initialising) throw new IllegalStateException("Circular reference detected");
 		try
 		{
 			_initialising = true;
