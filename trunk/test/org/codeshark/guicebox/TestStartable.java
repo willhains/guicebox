@@ -32,7 +32,7 @@ public final class TestStartable
 	        	{
 	        		Thread.sleep(1000);
 	        		System.out.println("    " + getName() + " running...");
-	        		if(i > 3) GuiceBox.stop();
+	        		if(i > 3) GuiceBox.kill();
 	        	}
 	        }
 	        catch(InterruptedException e)
@@ -42,7 +42,7 @@ public final class TestStartable
         }
 	};
 	
-	@Start
+	@Start("Named Thread from Runnable")
 	private final Runnable _runnable = new Runnable()
 	{
 		@Override
