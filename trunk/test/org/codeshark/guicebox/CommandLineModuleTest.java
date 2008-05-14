@@ -1,4 +1,4 @@
-package com.willhains.guicebox;
+package org.codeshark.guicebox;
 
 import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.*;
@@ -9,7 +9,7 @@ import java.lang.annotation.*;
 import java.util.*;
 import org.junit.*;
 
-public class CommandLineTest
+public class CommandLineModuleTest
 {
 	private String[] _split(String args)
 	{

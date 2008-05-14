@@ -1,4 +1,4 @@
-package com.willhains.guicebox;
+package org.codeshark.guicebox;
 
 import com.google.inject.*;
 import com.google.inject.name.*;
