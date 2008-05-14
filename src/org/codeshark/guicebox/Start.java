@@ -12,4 +12,9 @@ import java.lang.annotation.*;
 @Retention(RUNTIME)
 @Target({ FIELD, METHOD })
 public @interface Start
-{}
+{
+	/**
+	 * For annotated {@link Runnable}s, the value will be used as the thread name.
+	 */
+	String value() default "";
+}
