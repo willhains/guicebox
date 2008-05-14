@@ -97,7 +97,6 @@ public final class GuiceBox
 							    : new Thread((Runnable)runnable);
 							
 							// Add a command to the list to create and/or start the thread
-							final Object o = instance;
 							_startCommands.add(new Callable<Object>()
 							{
 								@Override
