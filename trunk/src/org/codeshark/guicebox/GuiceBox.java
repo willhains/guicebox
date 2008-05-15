@@ -15,8 +15,8 @@ import java.util.concurrent.*;
 public final class GuiceBox
 {
 	// Start/Stop method invocations
-	private static List<Callable<?>> _startCommands;
-	private static List<Callable<?>> _stopCommands;
+	private static final List<Runnable> _startCommands = new LinkedList<Runnable>();
+	private static final List<Runnable> _stopCommands = new LinkedList<Runnable>();
 	
 	// GuiceBox application state
 	private static volatile GuiceBoxState _state = GuiceBoxState.NEW;
@@ -31,6 +31,9 @@ public final class GuiceBox
 		}
 	});
 	
+	// Application threads
+	private static final List<Thread> _appThreads = new LinkedList<Thread>();
+	
 	/**
 	 * Initialises the application with the specified Guice bindings. All the bound Guice classes that contain
 	 * {@link Start} and/or {@link Stop} annotations will be bootstrapped. If anything goes wrong during bootstrapping,
@@ -40,21 +43,14 @@ public final class GuiceBox
 	 */
 	public static void init(final Injector injector)
 	{
-		try
+		_safe.submit(new Runnable()
 		{
-			_schedule(new Callable<GuiceBoxState>()
+			@Override
+			public void run()
 			{
-				@Override
-				public GuiceBoxState call() throws Exception
-				{
-					return _state.init(injector);
-				}
-			});
-		}
-		catch(Throwable e)
-		{
-			kill();
-		}
+				_state = _state.init(injector);
+			}
+		});
 	}
 	
 	/**
@@ -63,22 +59,14 @@ public final class GuiceBox
 	 */
 	public static void start()
 	{
-		try
+		_safe.submit(new Runnable()
 		{
-			_schedule(new Callable<GuiceBoxState>()
+			@Override
+			public void run()
 			{
-				@Override
-				public GuiceBoxState call() throws Exception
-				{
-					return _state.start();
-				}
-			});
-		}
-		catch(Throwable e)
-		{
-			stop();
-			kill();
-		}
+				_state = _state.start();
+			}
+		});
 	}
 	
 	/**
@@ -87,21 +75,14 @@ public final class GuiceBox
 	 */
 	public static void stop()
 	{
-		try
+		_safe.submit(new Runnable()
 		{
-			_schedule(new Callable<GuiceBoxState>()
+			@Override
+			public void run()
 			{
-				@Override
-				public GuiceBoxState call() throws Exception
-				{
-					return _state.stop();
-				}
-			});
-		}
-		catch(Throwable e)
-		{
-			kill();
-		}
+				_state = _state.stop();
+			}
+		});
 	}
 	
 	/**
@@ -109,38 +90,26 @@ public final class GuiceBox
 	 */
 	public static void kill()
 	{
-		try
+		_safe.submit(new Runnable()
 		{
-			_schedule(new Callable<GuiceBoxState>()
+			@Override
+			public void run()
 			{
-				@Override
-				public GuiceBoxState call() throws Exception
-				{
-					return _state.kill();
-				}
-			});
-		}
-		catch(Throwable e)
-		{
-			System.exit(1);
-		}
+				_state = _state.kill();
+			}
+		});
 	}
 	
-	private static void _schedule(final Callable<GuiceBoxState> task) throws Throwable
+	private static List<Class<?>> getAllTypes(Class<?> type)
 	{
-		try
+		final List<Class<?>> allTypes = new ArrayList<Class<?>>();
+		if(type != null)
 		{
-			_state = _safe.submit(task).get();
+			allTypes.add(type);
+			allTypes.addAll(Arrays.asList(type.getInterfaces()));
+			allTypes.addAll(getAllTypes(type.getSuperclass()));
 		}
-		catch(InterruptedException e)
-		{
-			Thread.currentThread().interrupt();
-		}
-		catch(ExecutionException e)
-		{
-			e.getCause().printStackTrace();
-			throw e.getCause();
-		}
+		return allTypes;
 	}
 	
 	// Control the behaviour depending on the state of the application
@@ -149,122 +118,122 @@ public final class GuiceBox
 		NEW
 		{
 			@Override
-			GuiceBoxState init(Injector injector) throws Exception
+			GuiceBoxState init(Injector injector)
 			{
-				// Initialise the command lists
-				_startCommands = new LinkedList<Callable<?>>();
-				_stopCommands = new LinkedList<Callable<?>>();
-				
-				// GuiceBox can only see classes that were specifically bound by the application's Modules (TODO: why?)
-				for(final Binding<?> binding : injector.getBindings().values())
+				try
 				{
-					final Key<?> key = binding.getKey();
-					final Type type = key.getTypeLiteral().getType();
-					if(type instanceof Class)
+					// GuiceBox can only see classes that were specifically bound by the application's Modules (TODO: why?)
+					for(final Binding<?> binding : injector.getBindings().values())
 					{
-						final Class<?> impl = (Class<?>)type;
-						final Method[] methods = impl.getMethods();
-						Object instance = null;
-						
-						// Search for GuiceBox methods
-						for(final Method method : methods)
+						final Key<?> key = binding.getKey();
+						final Type type = key.getTypeLiteral().getType();
+						if(type instanceof Class)
 						{
-							List<Callable<?>> commands = null;
-							if(method.getAnnotation(Start.class) != null) commands = _startCommands;
-							if(method.getAnnotation(Stop.class) != null) commands = _stopCommands;
-							if(commands != null)
+							final Class<?> impl = (Class<?>)type;
+							final Method[] methods = impl.getMethods();
+							Object instance = null;
+							
+							// Search for GuiceBox methods
+							for(final Method method : methods)
 							{
-								// Check method for arguments
-								if(method.getParameterTypes().length > 0)
+								List<Runnable> commands = null;
+								if(method.getAnnotation(Start.class) != null) commands = _startCommands;
+								if(method.getAnnotation(Stop.class) != null) commands = _stopCommands;
+								if(commands != null)
 								{
-									throw new GuiceBoxException("GuiceBox methods must have no arguments: " + method);
-								}
-								
-								// Add a command to the list to call the GuiceBox method
-								if(instance == null) instance = injector.getInstance(key);
-								final Object o = instance;
-								commands.add(new Callable<Object>()
-								{
-									@Override
-									public Object call() throws Exception
+									// Check method for arguments
+									if(method.getParameterTypes().length > 0)
 									{
-										return method.invoke(o);
+										throw new GuiceBoxException("Must have no arguments: " + method);
 									}
-								});
-								
+									
+									// Add a command to the list to call the GuiceBox method
+									if(instance == null) instance = injector.getInstance(key);
+									final Object o = instance;
+									commands.add(new Runnable()
+									{
+										@Override
+										public void run()
+										{
+											try
+											{
+												method.invoke(o);
+											}
+											catch(Exception e)
+											{
+												e.printStackTrace();
+												GuiceBox.stop();
+												GuiceBox.kill();
+											}
+										}
+									});
+									
+								}
 							}
-						}
-						
-						// Search for GuiceBox fields
-						for(final Field field : impl.getDeclaredFields())
-						{
-							// Add Runnable objects to the start list
-							final Start start = field.getAnnotation(Start.class);
-							if(start != null)
+							
+							// Search for GuiceBox fields
+							for(final Field field : impl.getDeclaredFields())
 							{
-								field.setAccessible(true);
-								if(instance == null) instance = injector.getInstance(key);
-								final Object runnable = field.get(instance);
-								
-								// Check field for runnability
-								if(!Runnable.class.isInstance(runnable))
+								// Add Runnable objects to the start list
+								final Start start = field.getAnnotation(Start.class);
+								if(start != null)
 								{
-									throw new GuiceBoxException("@Start fields must be Runnable: " + field);
+									// Create the Runnable instance
+									if(!getAllTypes(field.getType()).contains(Runnable.class))
+									{
+										throw new GuiceBoxException("@Start fields must be Runnable: " + field);
+									}
+									field.setAccessible(true);
+									if(instance == null) instance = injector.getInstance(key);
+									final Runnable runnable = (Runnable)field.get(instance);
+									
+									// Add a command to the list to create and/or start the thread
+									_startCommands.add(new Runnable()
+									{
+										@Override
+										public void run()
+										{
+											// Create the thread
+											final Thread thread = new Thread(runnable);
+											if(start.value().length() > 0) thread.setName(start.value());
+											
+											// Start the thread
+											thread.start();
+											_appThreads.add(thread);
+										}
+									});
 								}
-								
-								// Create the thread if necessary
-								final Thread thread = Thread.class.isInstance(runnable)
-								    ? (Thread)runnable
-								    : new Thread((Runnable)runnable);
-								if(start.value().length() > 0) thread.setName(start.value());
-								
-								// Add a command to the list to create and/or start the thread
-								_startCommands.add(new Callable<Object>()
-								{
-									@Override
-									public Object call() throws Exception
-									{
-										thread.start();
-										return null;
-									}
-								});
-								
-								// Add a command to the list to interrupt the thread
-								_stopCommands.add(new Callable<Object>()
-								{
-									@Override
-									public Object call() throws Exception
-									{
-										thread.interrupt();
-										return null;
-									}
-								});
 							}
 						}
 					}
+					
+					// Reverse the stop commands so that the application "backs out" when it stops
+					Collections.reverse(_stopCommands);
+					
+					// Transition state
+					return INITIALISED;
 				}
-				
-				// Reverse the stop commands so that the application "backs out" when it stops
-				Collections.reverse(_stopCommands);
-				
-				// Transition state
-				return INITIALISED;
+				catch(Throwable e)
+				{
+					e.printStackTrace();
+					return INITIALISED.kill();
+				}
 			}
 			
 			@Override
-			GuiceBoxState start() throws Exception
+			GuiceBoxState start()
 			{
 				throw new IllegalStateException("Application not initialised. Call init(Injector) first");
 			}
 			
 			@Override
-			GuiceBoxState stop() throws Exception
+			GuiceBoxState stop()
 			{
 				throw new IllegalStateException("Application not initialised. Call init(Injector) first");
 			}
 			
 			@Override
-			GuiceBoxState kill() throws Exception
+			GuiceBoxState kill()
 			{
 				_safe.shutdownNow();
 				return this;
@@ -274,38 +243,37 @@ public final class GuiceBox
 		INITIALISED
 		{
 			@Override
-			GuiceBoxState init(Injector injector) throws Exception
+			GuiceBoxState init(Injector injector)
 			{
 				throw new IllegalStateException("Application already initialised. Call start() next.");
 			}
 			
 			@Override
-			GuiceBoxState start() throws Exception
+			GuiceBoxState start()
 			{
 				try
-				{
-					for(Callable<?> cmd : _startCommands)
-					{
-						cmd.call();
-					}
+                {
+	                for(Runnable cmd : _startCommands)
+	                {
+	                	cmd.run();
+	                }
+	                return STARTED;
+                }
+                catch(Throwable e)
+                {
+					e.printStackTrace();
+					return STARTED.stop().kill();
 				}
-				catch(Exception e)
-				{
-					e.getCause().printStackTrace();
-					stop();
-					kill();
-				}
-				return STARTED;
 			}
 			
 			@Override
-			GuiceBoxState stop() throws Exception
+			GuiceBoxState stop()
 			{
 				return this;
 			}
 			
 			@Override
-			GuiceBoxState kill() throws Exception
+			GuiceBoxState kill()
 			{
 				_safe.shutdownNow();
 				return this;
@@ -315,48 +283,56 @@ public final class GuiceBox
 		STARTED
 		{
 			@Override
-			GuiceBoxState init(Injector injector) throws Exception
+			GuiceBoxState init(Injector injector)
 			{
 				throw new IllegalStateException("Application already started. Call stop() next.");
 			}
 			
 			@Override
-			GuiceBoxState start() throws Exception
+			GuiceBoxState start()
 			{
 				throw new IllegalStateException("Application already started. Call stop() next.");
 			}
 			
 			@Override
-			GuiceBoxState stop() throws Exception
+			GuiceBoxState stop()
 			{
 				try
-				{
-					for(Callable<?> cmd : _stopCommands)
-					{
-						cmd.call();
-					}
+                {
+	                // Interrupt application threads
+	                while(!_appThreads.isEmpty())
+	                {
+	                	final Thread thread = _appThreads.remove(0);
+	                	thread.interrupt();
+	                }
+	                
+	                // Run stop methods
+	                for(Runnable cmd : _stopCommands)
+	                {
+	                	cmd.run();
+	                }
+	                return INITIALISED;
+                }
+                catch(Throwable e)
+                {
+					e.printStackTrace();
+					return INITIALISED.kill();
 				}
-				catch(Exception e)
-				{
-					e.getCause().printStackTrace();
-					kill();
-				}
-				return INITIALISED;
 			}
 			
 			@Override
-			GuiceBoxState kill() throws Exception
+			GuiceBoxState kill()
 			{
 				return stop().kill();
 			}
 		};
 		
-		abstract GuiceBoxState init(Injector injector) throws Exception;
+		abstract GuiceBoxState init(Injector injector);
 		
-		abstract GuiceBoxState start() throws Exception;
+		abstract GuiceBoxState start();
 		
-		abstract GuiceBoxState stop() throws Exception;
+		abstract GuiceBoxState stop();
 		
-		abstract GuiceBoxState kill() throws Exception;
+		abstract GuiceBoxState kill();
 	}
 }
