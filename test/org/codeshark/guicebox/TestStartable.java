@@ -21,29 +21,30 @@ public final class TestStartable
 	}
 	
 	@Start
-	private final Thread _thread = new Thread(toString())
+	private final Runnable _unnamed = new Runnable()
 	{
 		@Override
         public void run()
         {
-	        try
+	        final String threadName = Thread.currentThread().getName();
+			try
 	        {
 	        	for(int i = 0; true; i++)
 	        	{
 	        		Thread.sleep(1000);
-	        		System.out.println("    " + getName() + " running...");
-	        		if(i > 3) GuiceBox.kill();
+	        		System.out.println("    " + threadName + " running...");
+	        		if(i > 3) GuiceBox.stop();
 	        	}
 	        }
 	        catch(InterruptedException e)
 	        {
-	        	System.out.println(getName() + " interrupted. Dying...");
+	        	System.out.println(threadName + " interrupted. Dying...");
 	        }
         }
 	};
 	
 	@Start("Named Thread from Runnable")
-	private final Runnable _runnable = new Runnable()
+	private final Runnable _named = new Runnable()
 	{
 		@Override
         public void run()
