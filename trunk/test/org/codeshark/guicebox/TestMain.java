@@ -10,7 +10,13 @@ public class TestMain extends AbstractModule
 	public static void main(String[] args) throws InterruptedException
 	{
 		// Initialise application
-		GuiceBox.init(Guice.createInjector(new TestMain(), new CommandLineModule(args)));
+		GuiceBox.init(Guice.createInjector(
+			new TestMain(),
+			new CommandLineModule(args)
+			    .bind(Param1.class, "param1", "default1")
+			    .bind(Param2.class, "param2", "default2")
+			    .bind(Param3.class, "param3", "default3")
+			    .bind(Param4.class, "param4", "default4")));
 		
 		// Start application
 		GuiceBox.start();
@@ -32,4 +38,3 @@ public class TestMain extends AbstractModule
 		bind(TestStartable.class);
 	}
 }
-

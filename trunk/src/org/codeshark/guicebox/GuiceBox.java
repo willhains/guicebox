@@ -252,15 +252,15 @@ public final class GuiceBox
 			GuiceBoxState start()
 			{
 				try
-                {
-	                for(Runnable cmd : _startCommands)
-	                {
-	                	cmd.run();
-	                }
-	                return STARTED;
-                }
-                catch(Throwable e)
-                {
+				{
+					for(Runnable cmd : _startCommands)
+					{
+						cmd.run();
+					}
+					return STARTED;
+				}
+				catch(Throwable e)
+				{
 					e.printStackTrace();
 					return STARTED.stop().kill();
 				}
@@ -298,23 +298,23 @@ public final class GuiceBox
 			GuiceBoxState stop()
 			{
 				try
-                {
-	                // Interrupt application threads
-	                while(!_appThreads.isEmpty())
-	                {
-	                	final Thread thread = _appThreads.remove(0);
-	                	thread.interrupt();
-	                }
-	                
-	                // Run stop methods
-	                for(Runnable cmd : _stopCommands)
-	                {
-	                	cmd.run();
-	                }
-	                return INITIALISED;
-                }
-                catch(Throwable e)
-                {
+				{
+					// Interrupt application threads
+					while(!_appThreads.isEmpty())
+					{
+						final Thread thread = _appThreads.remove(0);
+						thread.interrupt();
+					}
+					
+					// Run stop methods
+					for(Runnable cmd : _stopCommands)
+					{
+						cmd.run();
+					}
+					return INITIALISED;
+				}
+				catch(Throwable e)
+				{
 					e.printStackTrace();
 					return INITIALISED.kill();
 				}

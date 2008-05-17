@@ -8,11 +8,11 @@ public final class TestStartable
 	private final int _instance;
 	
 	@Override
-    public String toString()
-    {
-	    return getClass().getSimpleName() + " instance #" + _instance;
-    }
-
+	public String toString()
+	{
+		return getClass().getSimpleName() + " instance #" + _instance;
+	}
+	
 	@Inject
 	public TestStartable(StartableInterface type1, UnboundStartable type2)
 	{
@@ -21,47 +21,49 @@ public final class TestStartable
 	}
 	
 	@Start
+	@SuppressWarnings("unused")
 	private final Runnable _unnamed = new Runnable()
 	{
 		@Override
-        public void run()
-        {
-	        final String threadName = Thread.currentThread().getName();
+		public void run()
+		{
+			final String threadName = Thread.currentThread().getName();
 			try
-	        {
-	        	for(int i = 0; true; i++)
-	        	{
-	        		Thread.sleep(1000);
-	        		System.out.println("    " + threadName + " running...");
-	        		if(i > 3) GuiceBox.stop();
-	        	}
-	        }
-	        catch(InterruptedException e)
-	        {
-	        	System.out.println(threadName + " interrupted. Dying...");
-	        }
-        }
+			{
+				for(int i = 0; true; i++)
+				{
+					Thread.sleep(1000);
+					System.out.println("    " + threadName + " running...");
+					if(i > 3) GuiceBox.stop();
+				}
+			}
+			catch(InterruptedException e)
+			{
+				System.out.println(threadName + " interrupted. Dying...");
+			}
+		}
 	};
 	
 	@Start("Named Thread from Runnable")
+	@SuppressWarnings("unused")
 	private final Runnable _named = new Runnable()
 	{
 		@Override
-        public void run()
-        {
+		public void run()
+		{
 			final String threadName = Thread.currentThread().getName();
-	        try
-	        {
-	        	while(true)
-	        	{
-	        		Thread.sleep(700);
+			try
+			{
+				while(true)
+				{
+					Thread.sleep(700);
 					System.out.println("    " + threadName + " running...");
-	        	}
-	        }
-	        catch(InterruptedException e)
-	        {
-	        	System.out.println(threadName + " interrupted. Dying...");
-	        }
-        }
+				}
+			}
+			catch(InterruptedException e)
+			{
+				System.out.println(threadName + " interrupted. Dying...");
+			}
+		}
 	};
 }

@@ -6,7 +6,7 @@ package org.codeshark.guicebox;
  * @author willhains
  */
 public final class GuiceBoxException extends RuntimeException
-{	
+{
 	GuiceBoxException(String message)
 	{
 		super(message);

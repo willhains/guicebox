@@ -32,6 +32,15 @@ public class CommandLineModuleTest
 		assertEquals("3", options.getProperty("three"));
 	}
 	
+	@Test
+	public void testNoValueGiven() throws Exception
+	{
+		final Properties options = new CommandLineModule(_split("-one 1 -two 2 -three"))._constValues;
+		assertEquals("1", options.getProperty("one"));
+		assertEquals("2", options.getProperty("two"));
+		assertEquals("true", options.getProperty("three"));
+	}
+	
 	@Retention(RUNTIME)
 	@Target({ FIELD, PARAMETER })
 	@BindingAnnotation
@@ -86,7 +95,7 @@ public class CommandLineModuleTest
 		}
 		catch(IllegalArgumentException e)
 		{
-			assertEquals("'-three' must be supplied!", e.getMessage());
+			assertEquals("'-three' must be supplied", e.getMessage());
 		}
 	}
 	
@@ -101,20 +110,6 @@ public class CommandLineModuleTest
 		catch(IllegalArgumentException e)
 		{
 			assertEquals("unknown switch: '2'", e.getMessage());
-		}
-	}
-	
-	@Test
-	public void testNoValueGiven() throws Exception
-	{
-		try
-		{
-			new CommandLineModule(_split("-one 1 -two 2 -three"));
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch(IllegalArgumentException e)
-		{
-			assertEquals("no value given for '-three'", e.getMessage());
 		}
 	}
 }
