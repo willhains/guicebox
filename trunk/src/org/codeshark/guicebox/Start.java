@@ -9,8 +9,7 @@ import java.lang.annotation.*;
  * 
  * @author willhains
  */
-@Retention(RUNTIME)
-@Target({ FIELD, METHOD })
+@Retention(RUNTIME) @Target({ FIELD, METHOD })//
 public @interface Start
 {
 	/**
