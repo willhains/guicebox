@@ -31,5 +31,6 @@ public class TestMain extends AbstractModule
 	{
 		bind(StartableInterface.class).to(StartableInterfaceImpl.class).in(Scopes.SINGLETON);
 		bind(TestStartable.class);
+		bind(Cluster.class).to(MockCluster.class);
 	}
 }

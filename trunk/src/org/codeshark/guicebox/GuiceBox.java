@@ -50,6 +50,40 @@ public final class GuiceBox
 		});
 	}
 	
+	// State transition commands
+	private final Runnable _init = new Runnable()
+	{
+		@Override
+		public void run()
+		{
+			_state = _state.init(GuiceBox.this);
+		}
+	};
+	private final Runnable _start = new Runnable()
+	{
+		@Override
+		public void run()
+		{
+			_state = _state.start(GuiceBox.this);
+		}
+	};
+	private final Runnable _stop = new Runnable()
+	{
+		@Override
+		public void run()
+		{
+			_state = _state.stop(GuiceBox.this);
+		}
+	};
+	private final Runnable _kill = new Runnable()
+	{
+		@Override
+		public void run()
+		{
+			_state = _state.kill(GuiceBox.this);
+		}
+	};
+
 	/**
 	 * Equivalent to {@code injector.getInstance(GuiceBox.class).init()}.
 	 * 
@@ -69,14 +103,8 @@ public final class GuiceBox
 	 */
 	public void init()
 	{
-		_safe.submit(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				_state = _state.init(GuiceBox.this);
-			}
-		});
+		// Initialise the application
+		_safe.submit(_init);
 	}
 	
 	/**
@@ -85,27 +113,26 @@ public final class GuiceBox
 	 */
 	public void start()
 	{
+		// Silently ignore request if application is shutting down
+		if(_safe.isShutdown()) return;
+		
+		// Prepare triggers for start/stop
 		final Runnable startTrigger = new Runnable()
 		{
 			public void run()
 			{
-				_safe.submit(new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						_state = _state.start(GuiceBox.this);
-					}
-				});
+				_safe.submit(_start);
 			}
 		};
 		final Runnable stopTrigger = new Runnable()
 		{
 			public void run()
 			{
-				stop();
+				_safe.submit(_stop);
 			}
 		};
+		
+		// Join the cluster
 		_cluster.join(startTrigger, stopTrigger);
 	}
 	
@@ -115,15 +142,14 @@ public final class GuiceBox
 	 */
 	public void stop()
 	{
+		// Silently ignore request if application is shutting down
+		if(_safe.isShutdown()) return;
+		
+		// Stop the application
+		_safe.submit(_stop);
+		
+		// Leave the cluster
 		_cluster.leave();
-		_safe.submit(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				_state = _state.stop(GuiceBox.this);
-			}
-		});
 	}
 	
 	/**
@@ -131,14 +157,14 @@ public final class GuiceBox
 	 */
 	public void kill()
 	{
-		_safe.submit(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				_state = _state.kill(GuiceBox.this);
-			}
-		});
+		// Silently ignore request if application is shutting down
+		if(_safe.isShutdown()) return;
+		
+		// Kill the application
+		_safe.submit(_kill);
+		
+		// Leave the cluster
+		_cluster.leave();
 	}
 	
 	private static List<Class<?>> _getAllTypes(Class<?> type)
@@ -349,11 +375,12 @@ public final class GuiceBox
 			{
 				try
 				{
-					// Interrupt application threads
+					// Interrupt application threads and wait for them to die
 					while(!guicebox._appThreads.isEmpty())
 					{
 						final Thread thread = guicebox._appThreads.remove(0);
 						thread.interrupt();
+						thread.join();
 					}
 					
 					// Run stop methods
