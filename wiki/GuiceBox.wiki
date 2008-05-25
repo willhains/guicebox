@@ -1,0 +1,5 @@
+#summary Overview of the GuiceBox framework and some use cases
+
+= Introduction =
+
+GuiceBox is a framework built on top of [http://code.google.com/p/google-guice Guice] to manage the life cycle of applications and provide a simple but effective high availability (HA) solution.
