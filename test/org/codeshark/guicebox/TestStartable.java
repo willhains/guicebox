@@ -7,25 +7,24 @@ public final class TestStartable
 	private static int _instanceCount;
 	private final int _instance;
 	
-	@Override
-	public String toString()
+	@Override public String toString()
 	{
 		return getClass().getSimpleName() + " instance #" + _instance;
 	}
 	
-	@Inject
-	public TestStartable(StartableInterface type1, UnboundStartable type2)
+	private final GuiceBox _guicebox;
+	
+	@Inject public TestStartable(GuiceBox guicebox, StartableInterface type1, UnboundStartable type2)
 	{
+		_guicebox = guicebox;
 		_instance = ++_instanceCount;
 		System.out.println("Constructed " + this);
 	}
 	
-	@Start
-	@SuppressWarnings("unused")
+	@Start @SuppressWarnings("unused")//
 	private final Runnable _unnamed = new Runnable()
 	{
-		@Override
-		public void run()
+		@Override public void run()
 		{
 			final String threadName = Thread.currentThread().getName();
 			try
@@ -34,7 +33,7 @@ public final class TestStartable
 				{
 					Thread.sleep(1000);
 					System.out.println("    " + threadName + " running...");
-					if(i > 3) GuiceBox.stop();
+					if(i > 3) _guicebox.stop();
 				}
 			}
 			catch(InterruptedException e)
@@ -44,12 +43,10 @@ public final class TestStartable
 		}
 	};
 	
-	@Start("Named Thread from Runnable")
-	@SuppressWarnings("unused")
+	@Start("Named Thread from TestStartable") @SuppressWarnings("unused")//
 	private final Runnable _named = new Runnable()
 	{
-		@Override
-		public void run()
+		@Override public void run()
 		{
 			final String threadName = Thread.currentThread().getName();
 			try
