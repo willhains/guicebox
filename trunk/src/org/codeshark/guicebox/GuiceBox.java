@@ -12,7 +12,8 @@ import java.util.concurrent.*;
  * 
  * @author willhains
  */
-@Singleton public final class GuiceBox
+@Singleton
+public final class GuiceBox
 {
 	// Start/Stop/Kill method invocations
 	private final List<Runnable> _startCommands = new LinkedList<Runnable>();
@@ -31,12 +32,18 @@ import java.util.concurrent.*;
 	// Guice dependency injector
 	private final Injector _injector;
 	
-	@Inject private GuiceBox(Injector injector)
+	// Clustering scheme
+	private final Cluster _cluster;
+	
+	@Inject
+	private GuiceBox(Injector injector, Cluster cluster)
 	{
 		_injector = injector;
+		_cluster = cluster;
 		_safe = Executors.newSingleThreadExecutor(new ThreadFactory()
 		{
-			@Override public Thread newThread(Runnable r)
+			@Override
+			public Thread newThread(Runnable r)
 			{
 				return new Thread(r, "GuiceBox");
 			}
@@ -64,7 +71,8 @@ import java.util.concurrent.*;
 	{
 		_safe.submit(new Runnable()
 		{
-			@Override public void run()
+			@Override
+			public void run()
 			{
 				_state = _state.init(GuiceBox.this);
 			}
@@ -77,13 +85,28 @@ import java.util.concurrent.*;
 	 */
 	public void start()
 	{
-		_safe.submit(new Runnable()
+		final Runnable startTrigger = new Runnable()
 		{
-			@Override public void run()
+			public void run()
 			{
-				_state = _state.start(GuiceBox.this);
+				_safe.submit(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						_state = _state.start(GuiceBox.this);
+					}
+				});
 			}
-		});
+		};
+		final Runnable stopTrigger = new Runnable()
+		{
+			public void run()
+			{
+				stop();
+			}
+		};
+		_cluster.join(startTrigger, stopTrigger);
 	}
 	
 	/**
@@ -92,9 +115,11 @@ import java.util.concurrent.*;
 	 */
 	public void stop()
 	{
+		_cluster.leave();
 		_safe.submit(new Runnable()
 		{
-			@Override public void run()
+			@Override
+			public void run()
 			{
 				_state = _state.stop(GuiceBox.this);
 			}
@@ -108,7 +133,8 @@ import java.util.concurrent.*;
 	{
 		_safe.submit(new Runnable()
 		{
-			@Override public void run()
+			@Override
+			public void run()
 			{
 				_state = _state.kill(GuiceBox.this);
 			}
@@ -132,11 +158,13 @@ import java.util.concurrent.*;
 	{
 		NEW
 		{
-			@Override GuiceBoxState init(final GuiceBox guicebox)
+			@Override
+			GuiceBoxState init(final GuiceBox guicebox)
 			{
 				try
 				{
-					// GuiceBox can only see classes that were specifically bound by the application's Modules (TODO: why?)
+					// GuiceBox can only see classes that were specifically bound by the application's Modules (TODO:
+					// why?)
 					for(final Binding<?> binding : guicebox._injector.getBindings().values())
 					{
 						final Key<?> key = binding.getKey();
@@ -159,7 +187,7 @@ import java.util.concurrent.*;
 			}
 			
 			private void _searchClass(final GuiceBox guicebox, final Key<?> key, final Class<?> impl)
-			    throws IllegalAccessException
+				throws IllegalAccessException
 			{
 				// Will need an instance of each GuiceBoxed class to call its methods
 				Object instance = null;
@@ -186,7 +214,8 @@ import java.util.concurrent.*;
 					final Object o = instance;
 					final Runnable command = new Runnable()
 					{
-						@Override public void run()
+						@Override
+						public void run()
 						{
 							try
 							{
@@ -226,7 +255,8 @@ import java.util.concurrent.*;
 						// Add a command to the list to create and/or start the thread
 						guicebox._startCommands.add(new Runnable()
 						{
-							@Override public void run()
+							@Override
+							public void run()
 							{
 								// Create the thread
 								final Thread thread = new Thread(runnable);
@@ -241,17 +271,20 @@ import java.util.concurrent.*;
 				}
 			}
 			
-			@Override GuiceBoxState start(GuiceBox guicebox)
+			@Override
+			GuiceBoxState start(GuiceBox guicebox)
 			{
 				throw new IllegalStateException("Application not initialised. Call init() first");
 			}
 			
-			@Override GuiceBoxState stop(GuiceBox guicebox)
+			@Override
+			GuiceBoxState stop(GuiceBox guicebox)
 			{
 				throw new IllegalStateException("Application not initialised. Call init() first");
 			}
 			
-			@Override GuiceBoxState kill(GuiceBox guicebox)
+			@Override
+			GuiceBoxState kill(GuiceBox guicebox)
 			{
 				return INITIALISED.kill(guicebox);
 			}
@@ -259,12 +292,14 @@ import java.util.concurrent.*;
 		
 		INITIALISED
 		{
-			@Override GuiceBoxState init(GuiceBox guicebox)
+			@Override
+			GuiceBoxState init(GuiceBox guicebox)
 			{
 				throw new IllegalStateException("Application already initialised. Call start() next.");
 			}
 			
-			@Override GuiceBoxState start(GuiceBox guicebox)
+			@Override
+			GuiceBoxState start(GuiceBox guicebox)
 			{
 				try
 				{
@@ -281,12 +316,14 @@ import java.util.concurrent.*;
 				}
 			}
 			
-			@Override GuiceBoxState stop(GuiceBox guicebox)
+			@Override
+			GuiceBoxState stop(GuiceBox guicebox)
 			{
 				return this;
 			}
 			
-			@Override GuiceBoxState kill(GuiceBox guicebox)
+			@Override
+			GuiceBoxState kill(GuiceBox guicebox)
 			{
 				guicebox._safe.shutdownNow();
 				return this;
@@ -295,17 +332,20 @@ import java.util.concurrent.*;
 		
 		STARTED
 		{
-			@Override GuiceBoxState init(GuiceBox guicebox)
+			@Override
+			GuiceBoxState init(GuiceBox guicebox)
 			{
 				throw new IllegalStateException("Application already started. Call stop() or kill() next.");
 			}
 			
-			@Override GuiceBoxState start(GuiceBox guicebox)
+			@Override
+			GuiceBoxState start(GuiceBox guicebox)
 			{
 				throw new IllegalStateException("Application already started. Call stop() or kill() next.");
 			}
 			
-			@Override GuiceBoxState stop(GuiceBox guicebox)
+			@Override
+			GuiceBoxState stop(GuiceBox guicebox)
 			{
 				try
 				{
@@ -330,7 +370,8 @@ import java.util.concurrent.*;
 				}
 			}
 			
-			@Override GuiceBoxState kill(GuiceBox guicebox)
+			@Override
+			GuiceBoxState kill(GuiceBox guicebox)
 			{
 				return stop(guicebox).kill(guicebox);
 			}
