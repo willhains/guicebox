@@ -2,9 +2,7 @@ package org.codeshark.guicebox;
 
 public interface StartableInterface
 {
-	@Start
-	void go();
+	@Start void go();
 	
-	@Stop
-	void og();
+	@Stop void og();
 }
