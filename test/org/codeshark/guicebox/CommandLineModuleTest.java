@@ -16,91 +16,60 @@ public class CommandLineModuleTest
 		return args.split("\\s");
 	}
 	
-	@Test
-	public void testSingleArgument() throws Exception
+	@Test public void testSingleArgument() throws Exception
 	{
-		final Properties options = new CommandLineModule(_split("-single TEST"))._constValues;
-		assertEquals("TEST", options.getProperty("single"));
+		final Map<String, String> options = new CommandLineModule(_split("-single TEST"))._constValues;
+		assertEquals("TEST", options.get("single"));
 	}
 	
-	@Test
-	public void testMultipleArguments() throws Exception
+	@Test public void testMultipleArguments() throws Exception
 	{
-		final Properties options = new CommandLineModule(_split("-one 1 -two 2 -three 3"))._constValues;
-		assertEquals("1", options.getProperty("one"));
-		assertEquals("2", options.getProperty("two"));
-		assertEquals("3", options.getProperty("three"));
+		final Map<String, String> options = new CommandLineModule(_split("-one 1 -two 2 -three 3"))._constValues;
+		assertEquals("1", options.get("one"));
+		assertEquals("2", options.get("two"));
+		assertEquals("3", options.get("three"));
 	}
 	
-	@Test
-	public void testNoValueGiven() throws Exception
+	@Test public void testNoValueGiven() throws Exception
 	{
-		final Properties options = new CommandLineModule(_split("-one 1 -two 2 -three"))._constValues;
-		assertEquals("1", options.getProperty("one"));
-		assertEquals("2", options.getProperty("two"));
-		assertEquals("true", options.getProperty("three"));
+		final Map<String, String> options = new CommandLineModule(_split("-one 1 -two 2 -three"))._constValues;
+		assertEquals("1", options.get("one"));
+		assertEquals("2", options.get("two"));
+		assertEquals("true", options.get("three"));
 	}
 	
-	@Retention(RUNTIME)
-	@Target({ FIELD, PARAMETER })
-	@BindingAnnotation
+	@Retention(RUNTIME) @Target({ FIELD, PARAMETER }) @BindingAnnotation//
 	public @interface One
 	{}
 	
-	@Retention(RUNTIME)
-	@Target({ FIELD, PARAMETER })
-	@BindingAnnotation
+	@Retention(RUNTIME) @Target({ FIELD, PARAMETER }) @BindingAnnotation//
 	public @interface Two
 	{}
 	
-	@Retention(RUNTIME)
-	@Target({ FIELD, PARAMETER })
-	@BindingAnnotation
+	@Retention(RUNTIME) @Target({ FIELD, PARAMETER }) @BindingAnnotation//
 	public @interface Three
 	{}
 	
-	@Test
-	public void testDefault() throws Exception
+	private static final class Injectable
 	{
-		final Properties options = new CommandLineModule(_split("-one 1 -three 3"))
-		    .bind(Two.class, "two", "2")
-		    .bind(Three.class, "three", "4")._constValues;
-		assertEquals("1", options.getProperty("one"));
-		assertEquals("2", options.getProperty("two"));
-		assertEquals("3", options.getProperty("three"));
+		@Inject(optional = true) @One String one = "one";
+		@Inject(optional = true) @Two String two = "two";
+		@Inject(optional = true) @Three String three = "three";
 	}
 	
-	@Test
-	public void testBinding() throws Exception
+	@Test public void testBinding() throws Exception
 	{
-		final CommandLineModule mod = new CommandLineModule(_split("-one 1 -three 3"))
-		    .bind(One.class, "one")
-		    .bind(Two.class, "two", "2")
-		    .bind(Three.class, "three", "4");
-		assertEquals("one", mod._bindings.get(One.class));
-		assertEquals("two", mod._bindings.get(Two.class));
-		assertEquals("three", mod._bindings.get(Three.class));
+		final Injector injector = Guice.createInjector(new CommandLineModule(_split( //
+		"-org.codeshark.guicebox.CommandLineModuleTest$One 1 "
+		    + "-org.codeshark.guicebox.CommandLineModuleTest$Three 3 ")));
+		final Injectable injected = injector.getInstance(Injectable.class);
+		
+		assertEquals("1", injected.one);
+		assertEquals("two", injected.two);
+		assertEquals("3", injected.three);
 	}
 	
-	@Test
-	public void testNotSupplied() throws Exception
-	{
-		try
-		{
-			Guice.createInjector(new CommandLineModule(_split("-one 1 -two 2"))
-			    .bind(One.class, "one")
-			    .bind(Two.class, "two", "2")
-			    .bind(Three.class, "three"));
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch(IllegalArgumentException e)
-		{
-			assertEquals("'-three' must be supplied", e.getMessage());
-		}
-	}
-	
-	@Test
-	public void testNonSwitch() throws Exception
+	@Test public void testNonSwitch() throws Exception
 	{
 		try
 		{

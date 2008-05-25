@@ -7,36 +7,38 @@ public class StartableInterfaceImpl implements StartableInterface
 	private static int _instanceCount;
 	private final int _instance;
 	
-	@Override
-	public String toString()
+	@Override public String toString()
 	{
-		return getClass().getSimpleName() + " instance #" + _instance;
+		return new StringBuilder(getClass().getSimpleName())
+		    .append(" instance #")
+		    .append(_instance)
+		    .append("\n    param1=")
+		    .append(param1)
+		    .append("\n    param2=")
+		    .append(param2)
+		    .append("\n    param3=")
+		    .append(param3)
+		    .append("\n    param4=")
+		    .append(param4)
+		    .toString();
 	}
 	
-	@Inject
-	public StartableInterfaceImpl(
-	    UnboundStartable unbound,
-	    @Param1 String param1,
-	    @Param2 String param2,
-	    @Param3 String param3,
-	    @Param4 String param4)
+	@Inject(optional = true) @Param1 String param1 = "default1";
+	@Inject(optional = true) @Param2 String param2 = "default2";
+	@Inject(optional = true) @Param3 String param3 = "default3";
+	@Inject(optional = true) @Param4 String param4 = "default4";
+	
+	@Inject public StartableInterfaceImpl(UnboundStartable unbound)
 	{
 		_instance = ++_instanceCount;
-		System.out.println("Constructed " + this);
-		System.out.println("    param1=" + param1);
-		System.out.println("    param2=" + param2);
-		System.out.println("    param3=" + param3);
-		System.out.println("    param4=" + param4);
 	}
 	
-	@Override
-	public void go()
+	@Override public void go()
 	{
 		System.out.println("STARTED " + this);
 	}
 	
-	@Override
-	public void og()
+	@Override public void og()
 	{
 		System.out.println("STOPPED " + this);
 	}
