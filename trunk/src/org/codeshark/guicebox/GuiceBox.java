@@ -27,7 +27,7 @@ public final class GuiceBox
 	private final List<Thread> _appThreads = new LinkedList<Thread>();
 	
 	// GuiceBox application state
-	private volatile GuiceBoxState _state = GuiceBoxState.NEW;
+	private GuiceBoxState _state = GuiceBoxState.NEW;
 	
 	// Guice dependency injector
 	private final Injector _injector;
@@ -83,7 +83,7 @@ public final class GuiceBox
 			_state = _state.kill(GuiceBox.this);
 		}
 	};
-
+	
 	/**
 	 * Equivalent to {@code injector.getInstance(GuiceBox.class).init()}.
 	 * 
@@ -100,35 +100,60 @@ public final class GuiceBox
 	 * Initialises the application with the specified Guice bindings. All the bound Guice classes that contain
 	 * {@link Start}, {@link Stop} and/or {@link Kill} annotations will be bootstrapped. If anything goes wrong during
 	 * bootstrapping, the application will be killed.
+	 * <p>
+	 * This method is non-blocking. It will return immediately.
 	 */
 	public void init()
 	{
-		// Initialise the application
-		_safe.submit(_init);
+		try
+		{
+			// Initialise the application
+			_safe.submit(_init);
+		}
+		catch(RejectedExecutionException e)
+		{
+			// Ignore
+		}
 	}
 	
 	/**
 	 * Starts the application by calling all the methods annotated with {@link Start}, and starting threads for all
 	 * {@link Runnable}s annotated with {@link Start}.
+	 * <p>
+	 * This method is non-blocking. It will return immediately.
 	 */
 	public void start()
 	{
-		// Silently ignore request if application is shutting down
-		if(_safe.isShutdown()) return;
+		// Ensure the application is already initialised
+		init();
 		
 		// Prepare triggers for start/stop
 		final Runnable startTrigger = new Runnable()
 		{
 			public void run()
 			{
-				_safe.submit(_start);
+				try
+				{
+					_safe.submit(_start);
+				}
+				catch(RejectedExecutionException e)
+				{
+					// Ignore
+				}
 			}
 		};
 		final Runnable stopTrigger = new Runnable()
 		{
 			public void run()
 			{
-				_safe.submit(_stop);
+				try
+				{
+					_safe.submit(_stop);
+				}
+				catch(RejectedExecutionException e)
+				{
+					// Ignore
+				}
 			}
 		};
 		
@@ -139,32 +164,47 @@ public final class GuiceBox
 	/**
 	 * Stops the application by calling all the methods annotated with {@link Stop}, and interrupting all threads
 	 * started during {@link #start()}.
+	 * <p>
+	 * This method is non-blocking. It will return immediately.
 	 */
 	public void stop()
 	{
-		// Silently ignore request if application is shutting down
-		if(_safe.isShutdown()) return;
-		
-		// Stop the application
-		_safe.submit(_stop);
+		// Ensure the application is already initialised
+		init();
 		
 		// Leave the cluster
 		_cluster.leave();
+		
+		// Stop the application
+		try
+		{
+			_safe.submit(_stop);
+		}
+		catch(RejectedExecutionException e)
+		{
+			// Ignore
+		}
 	}
 	
 	/**
 	 * Kills the application by calling all the methods annotated with {@link Kill}, and shutting down GuiceBox.
+	 * <p>
+	 * This method is non-blocking. It will return immediately.
 	 */
 	public void kill()
 	{
-		// Silently ignore request if application is shutting down
-		if(_safe.isShutdown()) return;
+		// Ensure the application is already stopped
+		stop();
 		
 		// Kill the application
-		_safe.submit(_kill);
-		
-		// Leave the cluster
-		_cluster.leave();
+		try
+		{
+			_safe.submit(_kill);
+		}
+		catch(RejectedExecutionException e)
+		{
+			// Ignore
+		}
 	}
 	
 	private static List<Class<?>> _getAllTypes(Class<?> type)
@@ -189,8 +229,8 @@ public final class GuiceBox
 			{
 				try
 				{
-					// GuiceBox can only see classes that were specifically bound by the application's Modules (TODO:
-					// why?)
+					// GuiceBox can only see classes that were specifically bound by the application's Modules
+					// (TODO: why?)
 					for(final Binding<?> binding : guicebox._injector.getBindings().values())
 					{
 						final Key<?> key = binding.getKey();
@@ -296,34 +336,10 @@ public final class GuiceBox
 					}
 				}
 			}
-			
-			@Override
-			GuiceBoxState start(GuiceBox guicebox)
-			{
-				throw new IllegalStateException("Application not initialised. Call init() first");
-			}
-			
-			@Override
-			GuiceBoxState stop(GuiceBox guicebox)
-			{
-				throw new IllegalStateException("Application not initialised. Call init() first");
-			}
-			
-			@Override
-			GuiceBoxState kill(GuiceBox guicebox)
-			{
-				return INITIALISED.kill(guicebox);
-			}
 		},
 		
 		INITIALISED
 		{
-			@Override
-			GuiceBoxState init(GuiceBox guicebox)
-			{
-				throw new IllegalStateException("Application already initialised. Call start() next.");
-			}
-			
 			@Override
 			GuiceBoxState start(GuiceBox guicebox)
 			{
@@ -343,33 +359,15 @@ public final class GuiceBox
 			}
 			
 			@Override
-			GuiceBoxState stop(GuiceBox guicebox)
-			{
-				return this;
-			}
-			
-			@Override
 			GuiceBoxState kill(GuiceBox guicebox)
 			{
-				guicebox._safe.shutdownNow();
+				guicebox._safe.shutdown();
 				return this;
 			}
 		},
 		
 		STARTED
 		{
-			@Override
-			GuiceBoxState init(GuiceBox guicebox)
-			{
-				throw new IllegalStateException("Application already started. Call stop() or kill() next.");
-			}
-			
-			@Override
-			GuiceBoxState start(GuiceBox guicebox)
-			{
-				throw new IllegalStateException("Application already started. Call stop() or kill() next.");
-			}
-			
 			@Override
 			GuiceBoxState stop(GuiceBox guicebox)
 			{
@@ -396,20 +394,26 @@ public final class GuiceBox
 					return INITIALISED.kill(guicebox);
 				}
 			}
-			
-			@Override
-			GuiceBoxState kill(GuiceBox guicebox)
-			{
-				return stop(guicebox).kill(guicebox);
-			}
 		};
 		
-		abstract GuiceBoxState init(GuiceBox guicebox);
+		GuiceBoxState init(GuiceBox guicebox)
+		{
+			return this;
+		}
 		
-		abstract GuiceBoxState start(GuiceBox guicebox);
+		GuiceBoxState start(GuiceBox guicebox)
+		{
+			return this;
+		}
 		
-		abstract GuiceBoxState stop(GuiceBox guicebox);
+		GuiceBoxState stop(GuiceBox guicebox)
+		{
+			return this;
+		}
 		
-		abstract GuiceBoxState kill(GuiceBox guicebox);
+		GuiceBoxState kill(GuiceBox guicebox)
+		{
+			return this;
+		}
 	}
 }
