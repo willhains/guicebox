@@ -2,12 +2,14 @@ package org.codeshark.guicebox;
 
 import com.google.inject.*;
 
-@Singleton public class UnboundStartable
+@Singleton
+public class UnboundStartable
 {
 	private static int _instanceCount;
 	private final int _instance;
 	
-	@Override public String toString()
+	@Override
+	public String toString()
 	{
 		return getClass().getSimpleName() + " instance #" + _instance;
 	}
@@ -18,7 +20,8 @@ import com.google.inject.*;
 		System.out.println("Constructed " + this);
 	}
 	
-	@Start public void startUnbound()
+	@Start
+	public void startUnbound()
 	{
 		System.out.println("STARTED " + this);
 	}

@@ -5,6 +5,8 @@ import static java.lang.annotation.RetentionPolicy.*;
 import com.google.inject.*;
 import java.lang.annotation.*;
 
-@Retention(RUNTIME) @Target({ FIELD, PARAMETER }) @BindingAnnotation//
+@Retention(RUNTIME)
+@Target({ FIELD, PARAMETER })
+@BindingAnnotation
 public @interface Param3
 {}

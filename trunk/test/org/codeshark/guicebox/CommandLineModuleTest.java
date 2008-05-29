@@ -16,13 +16,15 @@ public class CommandLineModuleTest
 		return args.split("\\s");
 	}
 	
-	@Test public void testSingleArgument() throws Exception
+	@Test
+	public void testSingleArgument() throws Exception
 	{
 		final Map<String, String> options = new CommandLineModule(_split("-single TEST"))._constValues;
 		assertEquals("TEST", options.get("single"));
 	}
 	
-	@Test public void testMultipleArguments() throws Exception
+	@Test
+	public void testMultipleArguments() throws Exception
 	{
 		final Map<String, String> options = new CommandLineModule(_split("-one 1 -two 2 -three 3"))._constValues;
 		assertEquals("1", options.get("one"));
@@ -30,7 +32,8 @@ public class CommandLineModuleTest
 		assertEquals("3", options.get("three"));
 	}
 	
-	@Test public void testNoValueGiven() throws Exception
+	@Test
+	public void testNoValueGiven() throws Exception
 	{
 		final Map<String, String> options = new CommandLineModule(_split("-one 1 -two 2 -three"))._constValues;
 		assertEquals("1", options.get("one"));
@@ -38,26 +41,41 @@ public class CommandLineModuleTest
 		assertEquals("true", options.get("three"));
 	}
 	
-	@Retention(RUNTIME) @Target({ FIELD, PARAMETER }) @BindingAnnotation//
+	@Retention(RUNTIME)
+	@Target({ FIELD, PARAMETER })
+	@BindingAnnotation
 	public @interface One
 	{}
 	
-	@Retention(RUNTIME) @Target({ FIELD, PARAMETER }) @BindingAnnotation//
+	@Retention(RUNTIME)
+	@Target({ FIELD, PARAMETER })
+	@BindingAnnotation
 	public @interface Two
 	{}
 	
-	@Retention(RUNTIME) @Target({ FIELD, PARAMETER }) @BindingAnnotation//
+	@Retention(RUNTIME)
+	@Target({ FIELD, PARAMETER })
+	@BindingAnnotation
 	public @interface Three
 	{}
 	
 	private static final class Injectable
 	{
-		@Inject(optional = true) @One String one = "one";
-		@Inject(optional = true) @Two String two = "two";
-		@Inject(optional = true) @Three String three = "three";
+		@Inject(optional = true)
+		@One
+		String one = "one";
+		
+		@Inject(optional = true)
+		@Two
+		String two = "two";
+		
+		@Inject(optional = true)
+		@Three
+		String three = "three";
 	}
 	
-	@Test public void testBinding() throws Exception
+	@Test
+	public void testBinding() throws Exception
 	{
 		final Injector injector = Guice.createInjector(new CommandLineModule(_split( //
 		"-org.codeshark.guicebox.CommandLineModuleTest$One 1 "
@@ -69,7 +87,8 @@ public class CommandLineModuleTest
 		assertEquals("3", injected.three);
 	}
 	
-	@Test public void testNonSwitch() throws Exception
+	@Test
+	public void testNonSwitch() throws Exception
 	{
 		try
 		{

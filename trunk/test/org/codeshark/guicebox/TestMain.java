@@ -10,9 +10,7 @@ public class TestMain extends AbstractModule
 	public static void main(String[] args) throws InterruptedException
 	{
 		// Initialise application
-		final GuiceBox guicebox = GuiceBox.init(Guice.createInjector(
-			new TestMain(),
-			new CommandLineModule(args)));
+		final GuiceBox guicebox = GuiceBox.init(Guice.createInjector(new TestMain(), new CommandLineModule(args)));
 		
 		// Start application
 		guicebox.start();
@@ -27,7 +25,8 @@ public class TestMain extends AbstractModule
 		guicebox.kill();
 	}
 	
-	@Override public void configure()
+	@Override
+	public void configure()
 	{
 		bind(StartableInterface.class).to(StartableInterfaceImpl.class).in(Scopes.SINGLETON);
 		bind(TestStartable.class);
