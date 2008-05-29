@@ -79,7 +79,8 @@ public class PropertiesModule extends AbstractModule
 	/**
 	 * Loads the collected constant values into Guice.
 	 */
-	@Override protected final void configure()
+	@Override
+	protected final void configure()
 	{
 		// Bind all properties by name as a baseline way to access them
 		Names.bindProperties(binder(), _constValues);
