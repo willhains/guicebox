@@ -10,44 +10,43 @@ public final class MockCluster implements Cluster
 	@Override
 	public void join(final Runnable startTrigger, final Runnable stopTrigger)
 	{
-		_delay = new Thread("MockCluster")
+		if(_delay == null || !_delay.isAlive())
 		{
-			@Override
-			public void run()
+			_delay = new Thread("MockCluster")
 			{
-				try
+				@Override
+				public void run()
 				{
-					System.out.println("Joining MockCluster...");
-					Thread.sleep(2500);
-					System.out.println("~~becoming PRIMARY");
-					startTrigger.run();
-					System.out.println("~~became PRIMARY");
-					Thread.sleep(2000);
-					System.out.println("~~becoming BACKUP");
-					stopTrigger.run();
-					System.out.println("~~became BACKUP");
-					Thread.sleep(2500);
-					System.out.println("~~becoming PRIMARY");
-					startTrigger.run();
-					System.out.println("~~became PRIMARY");
-					Thread.sleep(3500);
-					System.out.println("~~becoming BACKUP");
-					stopTrigger.run();
-					System.out.println("~~became BACKUP");
+					try
+					{
+						System.out.println("Joining MockCluster...");
+						while(true)
+						{
+							Thread.sleep(2500);
+							startTrigger.run();
+							System.out.println("~~became PRIMARY");
+							Thread.sleep(2000);
+							stopTrigger.run();
+							System.out.println("~~became BACKUP");
+						}
+					}
+					catch(InterruptedException e)
+					{
+						System.out.println("MockCluster interrupted");
+					}
 				}
-				catch(InterruptedException e)
-				{
-					System.out.println("MockCluster interrupted");
-				}
-			}
-		};
-		_delay.start();
+			};
+			_delay.start();
+		}
 	}
 	
 	@Override
 	public void leave()
 	{
-		System.out.println("Leaving MockCluster...");
-		_delay.interrupt();
+		if(_delay != null && _delay.isAlive() && !_delay.isInterrupted())
+		{
+			System.out.println("Leaving MockCluster...");
+			_delay.interrupt();
+		}
 	}
 }
