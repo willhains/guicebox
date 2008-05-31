@@ -5,7 +5,8 @@ import com.google.inject.*;
 public class TestMain extends AbstractModule
 {
 	private TestMain()
-	{}
+	{
+	}
 	
 	public static void main(String[] args) throws InterruptedException
 	{

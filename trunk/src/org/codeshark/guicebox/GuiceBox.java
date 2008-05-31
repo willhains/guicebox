@@ -6,9 +6,9 @@ import java.util.*;
 import java.util.concurrent.*;
 
 /**
- * Entry point to GuiceBox. Takes a Guice {@link Injector} and searches its bindings for classes annotated with
- * {@code @Start} and {@code @Stop} annotations. The lifecycle of the application is then controlled via these annotated
- * members.
+ * Entry point to GuiceBox. Takes a Guice {@link Injector} and searches its bindings for classes annotated with {@link
+ * Start}, {@link Stop} and {@link Kill} annotations. The lifecycle of the application is then controlled via these
+ * annotated members.
  * 
  * @author willhains
  */
@@ -50,40 +50,6 @@ public final class GuiceBox
 		});
 	}
 	
-	// State transition commands
-	private final Runnable _init = new Runnable()
-	{
-		@Override
-		public void run()
-		{
-			_state = _state.init(GuiceBox.this);
-		}
-	};
-	private final Runnable _start = new Runnable()
-	{
-		@Override
-		public void run()
-		{
-			_state = _state.start(GuiceBox.this);
-		}
-	};
-	private final Runnable _stop = new Runnable()
-	{
-		@Override
-		public void run()
-		{
-			_state = _state.stop(GuiceBox.this);
-		}
-	};
-	private final Runnable _kill = new Runnable()
-	{
-		@Override
-		public void run()
-		{
-			_state = _state.kill(GuiceBox.this);
-		}
-	};
-	
 	/**
 	 * Equivalent to {@code injector.getInstance(GuiceBox.class).init()}.
 	 * 
@@ -97,8 +63,8 @@ public final class GuiceBox
 	}
 	
 	/**
-	 * Initialises the application with the specified Guice bindings. All the bound Guice classes that contain
-	 * {@link Start}, {@link Stop} and/or {@link Kill} annotations will be bootstrapped. If anything goes wrong during
+	 * Initialises the application with the specified Guice bindings. All the bound Guice classes that contain {@link
+	 * Start}, {@link Stop} and/or {@link Kill} annotations will be bootstrapped. If anything goes wrong during
 	 * bootstrapping, the application will be killed.
 	 * <p>
 	 * This method is non-blocking. It will return immediately.
@@ -108,7 +74,14 @@ public final class GuiceBox
 		try
 		{
 			// Initialise the application
-			_safe.submit(_init);
+			_safe.submit(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					_state = _state.init(GuiceBox.this);
+				}
+			});
 		}
 		catch(RejectedExecutionException e)
 		{
@@ -134,7 +107,14 @@ public final class GuiceBox
 			{
 				try
 				{
-					_safe.submit(_start);
+					_safe.submit(new Runnable()
+					{
+						@Override
+						public void run()
+						{
+							_state = _state.start(GuiceBox.this);
+						}
+					});
 				}
 				catch(RejectedExecutionException e)
 				{
@@ -148,7 +128,14 @@ public final class GuiceBox
 			{
 				try
 				{
-					_safe.submit(_stop);
+					_safe.submit(new Runnable()
+					{
+						@Override
+						public void run()
+						{
+							_state = _state.stop(GuiceBox.this);
+						}
+					});
 				}
 				catch(RejectedExecutionException e)
 				{
@@ -178,7 +165,14 @@ public final class GuiceBox
 		// Stop the application
 		try
 		{
-			_safe.submit(_stop);
+			_safe.submit(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					_state = _state.stop(GuiceBox.this);
+				}
+			});
 		}
 		catch(RejectedExecutionException e)
 		{
@@ -199,7 +193,14 @@ public final class GuiceBox
 		// Kill the application
 		try
 		{
-			_safe.submit(_kill);
+			_safe.submit(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					_state = _state.kill(GuiceBox.this);
+				}
+			});
 		}
 		catch(RejectedExecutionException e)
 		{
@@ -243,6 +244,7 @@ public final class GuiceBox
 					Collections.reverse(guicebox._killCommands);
 					
 					// Transition state
+					System.out.println("GuiceBox INITIALISED");
 					return INITIALISED;
 				}
 				catch(Throwable e)
@@ -252,8 +254,7 @@ public final class GuiceBox
 				}
 			}
 			
-			private void _searchClass(final GuiceBox guicebox, final Key<?> key, final Class<?> impl)
-				throws IllegalAccessException
+			private void _searchClass(final GuiceBox guicebox, Key<?> key, Class<?> impl) throws Exception
 			{
 				// Will need an instance of each GuiceBoxed class to call its methods
 				Object instance = null;
@@ -349,6 +350,7 @@ public final class GuiceBox
 					{
 						cmd.run();
 					}
+					System.out.println("GuiceBox STARTED");
 					return STARTED;
 				}
 				catch(Throwable e)
@@ -362,6 +364,7 @@ public final class GuiceBox
 			GuiceBoxState kill(GuiceBox guicebox)
 			{
 				guicebox._safe.shutdown();
+				System.out.println("GuiceBox KILLED");
 				return this;
 			}
 		},
@@ -386,6 +389,7 @@ public final class GuiceBox
 					{
 						cmd.run();
 					}
+					System.out.println("GuiceBox STOPPED");
 					return INITIALISED;
 				}
 				catch(Throwable e)
@@ -396,22 +400,22 @@ public final class GuiceBox
 			}
 		};
 		
-		GuiceBoxState init(GuiceBox guicebox)
+		GuiceBoxState init(@SuppressWarnings("unused") GuiceBox guicebox)
 		{
 			return this;
 		}
 		
-		GuiceBoxState start(GuiceBox guicebox)
+		GuiceBoxState start(@SuppressWarnings("unused") GuiceBox guicebox)
 		{
 			return this;
 		}
 		
-		GuiceBoxState stop(GuiceBox guicebox)
+		GuiceBoxState stop(@SuppressWarnings("unused") GuiceBox guicebox)
 		{
 			return this;
 		}
 		
-		GuiceBoxState kill(GuiceBox guicebox)
+		GuiceBoxState kill(@SuppressWarnings("unused") GuiceBox guicebox)
 		{
 			return this;
 		}

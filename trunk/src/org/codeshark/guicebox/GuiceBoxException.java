@@ -5,6 +5,7 @@ package org.codeshark.guicebox;
  * 
  * @author willhains
  */
+@SuppressWarnings("serial")
 public final class GuiceBoxException extends RuntimeException
 {
 	GuiceBoxException(String message)

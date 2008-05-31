@@ -11,8 +11,7 @@ import java.util.*;
  * environment via properties files.
  * <p>
  * Any and all properties files in the relative paths {@code properties/} and/or {@code properties/username/} (where
- * <i>username</i> is the login ID of the current user) will be read, and the key-value pairs mapped as Guice
- * constants.
+ * <i>username</i> is the login ID of the current user) will be read, and the key-value pairs mapped as Guice constants.
  * <p>
  * Values are given precedence in the following order:
  * <ol>
