@@ -1,0 +1,5 @@
+#summary Description of how active-passive failover works in GuiceBox.
+
+= Introduction =
+
+TODO
