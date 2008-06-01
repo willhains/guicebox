@@ -2,4 +2,10 @@
 
 = Introduction =
 
-GuiceBox is a framework built on top of [http://code.google.com/p/google-guice Guice] to manage the life cycle of applications and provide a simple but effective high availability (HA) solution.
+GuiceBox is a "lifecycle injection" framework built on top of [http://code.google.com/p/google-guice Guice] to manage the life cycle of applications and provide a simple but effective high availability (HA) solution.
+
+Like dependency injection, "Lifecycle Injection" (cute name, huh?) means you can leave the tedium of managing application lifecycle to the framework and concentrate on writing code that does the important stuff.
+
+Like Guice, GuiceBox uses annotations to control how it works at runtime. All you have to do is annotate your methods and Runnable fields with `@Start`, `@Stop` and `@Kill` and GuiceBox will use these hints to manage initialisation, start, pause, and shutdown of your application. Like Guice, the benefit of using annotations for this is that your test code can completely ignore them, making unit testing much easier.
+
+Another key feature of GuiceBox is HotFailover. You can run two (or more) instances of your application in an active-passive cluster. GuiceBox will automatically detect the failure of the primary node and start up one of the back-up nodes. This is done peer-to-peer with no single point of failure.
