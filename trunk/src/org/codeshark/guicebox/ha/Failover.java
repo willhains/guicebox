@@ -26,6 +26,7 @@ import org.codeshark.guicebox.*;
  * If two or more nodes simultaneously attempt to become PRIMARY, they will receive each other's heartbeats. A
  * combination of start time and IP address is used to statically determine which node(s) should yield.
  * 
+ * @see http://code.google.com/p/guicebox/wiki/HotFailover
  * @author willhains
  */
 public class Failover implements Cluster
