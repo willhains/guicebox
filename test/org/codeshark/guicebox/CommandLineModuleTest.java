@@ -79,7 +79,7 @@ public class CommandLineModuleTest
 	{
 		final Injector injector = Guice.createInjector(new CommandLineModule(_split( //
 		"-org.codeshark.guicebox.CommandLineModuleTest$One 1 "
-		    + "-org.codeshark.guicebox.CommandLineModuleTest$Three 3 ")));
+			+ "-org.codeshark.guicebox.CommandLineModuleTest$Three 3 ")));
 		final Injectable injected = injector.getInstance(Injectable.class);
 		
 		assertEquals("1", injected.one);
