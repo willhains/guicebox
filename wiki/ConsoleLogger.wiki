@@ -1,0 +1,23 @@
+#summary Describes the default logging implementation in GuiceBox.
+
+= Introduction =
+
+ConsoleLogger is the default implementation of `Logger`. It logs everything to `stdout` and `stderr`, so it is useful for getting started quickly without needing to mess around with logging library config files, etc.
+
+= Configuration =
+
+ConsoleLogger is designed to work with zero configuration, and in most cases that's how you will use it. However, a few configuration options are supported. These are described below.
+
+== `@StdOut` and `@StdErr` ==
+
+These annotations can be bound to any `PrintStream` implementation, if you don't want to use the shell's `stdout` and `stderr`. For example, you might want to avoid `stderr` and use `stdout` only:
+{{{
+binder.bindConstant().annotatedWith(StdErr.class).to(System.out);
+}}}
+
+== `@MinLogLevel` ==
+
+If you want to limit the log messages coming out of ConsoleLogger just bind `LogLevel` to a level higher than `DEBUG`, like this:
+{{{
+binder.bindConstant().annotatedWith(MinLogLevel.class).to(LogLevel.INFO);
+}}}
