@@ -51,6 +51,14 @@ public final class Log
 		return forName(stack[1].getClassName());
 	}
 	
+	/**
+	 * @return a logger for the specified class name.
+	 */
+	public static Log forClass(Class<?> klass)
+	{
+		return forName(klass.getName());
+	}
+	
 	// Format for prefixing messages with the current time (null = don't include time)
 	@Inject(optional = true)
 	@LogTime
