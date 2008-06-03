@@ -97,4 +97,17 @@ GuiceBox (at time of writing) includes bridges to the following logging librarie
  * ConsoleLogger (default)
  * [http://logging.apache.org/log4j/1.2/ Log4j]
 
-To create a bridge to your favourite logging library, just create a class to implement `org.codeshark.guicebox.Logger` and a Guice Module to bind it to the `Logger` interface.
+To create a bridge to your favourite logging library, just create a class to implement `org.codeshark.guicebox.Logger` and a Guice Module to bind it to the `Logger` interface. You will also  need to request static injection to `Log.class`, as shown below.
+{{{
+public class MyLoggerModule extends AbstractModule
+{
+    protected void configure()
+    {
+        requestStaticInjection(Log.class);
+        bind(Logger.class).to(MyLogger.class);
+    }
+}
+}}}
+
+
+
