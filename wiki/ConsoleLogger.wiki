@@ -8,9 +8,19 @@ ConsoleLogger is the default implementation of `Logger`. It logs everything to `
 
 ConsoleLogger is designed to work with zero configuration, and in most cases that's how you will use it. However, a few configuration options are supported. These are described below.
 
+*Note:* Like LoggingBridge, none of these options will be injected by Guice unless PropertiesModule or CommandLineModule are wired to the injector.
+
 == `@MinLogLevel` ==
 
 If you want to limit the log messages coming out of ConsoleLogger just bind `LogLevel` to a level higher than `DEBUG`, like this:
 {{{
 binder.bindConstant().annotatedWith(MinLogLevel.class).to(LogLevel.INFO);
 }}}
+
+== `@StdOut` and `@StdErr` ==
+
+These annotations can be bound to any `PrintStream` implementation, if you don't want to use the shell's `stdout` and `stderr`. For example, you might want to avoid `stderr` and use `stdout` only:
+{{{
+binder.bindConstant().annotatedWith(StdErr.class).to(System.out);
+}}}
+
