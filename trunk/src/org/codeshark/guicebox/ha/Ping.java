@@ -52,17 +52,7 @@ public final class Ping
 	}
 	
 	// Timer
-	private ScheduledFuture<?> _ping;
-	private final ScheduledExecutorService _timer = Executors.newSingleThreadScheduledExecutor(new ThreadFactory()
-	{
-		@Override
-		public Thread newThread(Runnable r)
-		{
-			final Thread thread = new Thread(r, "Ping:" + _wka.getHostAddress());
-			thread.setDaemon(true);
-			return thread;
-		}
-	});
+	private ScheduledExecutorService _timer;
 	
 	/**
 	 * Starts pinging the {@link WellKnownAddress} every {@link PingInterval}. Each time a response is received, the
@@ -73,7 +63,19 @@ public final class Ping
 	public synchronized void start(final PingListener pingListener)
 	{
 		// Make sure we don't have multiple pings running
-		if(_ping != null) _ping.cancel(true);
+		stop();
+		
+		// Start a new timer
+		_timer = Executors.newSingleThreadScheduledExecutor(new ThreadFactory()
+		{
+			@Override
+			public Thread newThread(Runnable r)
+			{
+				final Thread thread = new Thread(r, "Ping:" + _wka.getHostAddress());
+				thread.setDaemon(false);
+				return thread;
+			}
+		});
 		
 		// Create and schedule the ping task
 		final Runnable command = new Runnable()
@@ -97,7 +99,7 @@ public final class Ping
 			}
 		};
 		final TimeUnit unit = _pingInterval < 1000 ? TimeUnit.SECONDS : TimeUnit.MILLISECONDS;
-		_ping = _timer.scheduleWithFixedDelay(command, 0, _pingInterval, unit);
+		_timer.scheduleWithFixedDelay(command, 0, _pingInterval, unit);
 	}
 	
 	/**
@@ -105,6 +107,6 @@ public final class Ping
 	 */
 	public synchronized void stop()
 	{
-		if(_ping != null) _ping.cancel(true);
+		if(_timer != null) _timer.shutdownNow();
 	}
 }
