@@ -4,6 +4,8 @@ import com.google.inject.*;
 
 public final class TestStartable
 {
+	private static final Log log = Log.forClass();
+	
 	private static int _instanceCount;
 	private final int _instance;
 	
@@ -20,54 +22,54 @@ public final class TestStartable
 	{
 		_guicebox = guicebox;
 		_instance = ++_instanceCount;
-		System.out.println("Constructed " + this);
+		log.info("Constructed", this, "(type1 =", type1, "type2 =", type2);
 	}
 	
 	@Start
+	@SuppressWarnings("unused")
 	private final Runnable _unnamed = new Runnable()
 	{
 		@Override
 		public void run()
 		{
-			final String threadName = Thread.currentThread().getName();
 			try
 			{
 				for(int i = 0; true; i++)
 				{
 					Thread.sleep(1000);
-					System.out.println("    " + threadName + " running...");
+					log.info("running...");
 					if(i > 3)
 					{
 						_guicebox.stop();
-						System.out.println(threadName + " asked GuiceBox to stop");
+						log.info("asked GuiceBox to stop");
 					}
 				}
 			}
 			catch(InterruptedException e)
 			{
-				System.out.println(threadName + " interrupted. Dying...");
+				log.info("interrupted. Dying...");
 			}
 		}
 	};
 	
 	@Start("Named Thread from TestStartable")
+	@SuppressWarnings("unused")
 	private final Runnable _named = new Runnable()
 	{
 		@Override
 		public void run()
 		{
-			final String threadName = Thread.currentThread().getName();
 			try
 			{
 				while(true)
 				{
 					Thread.sleep(700);
-					System.out.println("    " + threadName + " running...");
+					log.info("running...");
 				}
 			}
 			catch(InterruptedException e)
 			{
-				System.out.println(threadName + " interrupted. Dying...");
+				log.info("interrupted. Dying...");
 			}
 		}
 	};

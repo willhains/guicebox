@@ -1,5 +1,7 @@
 package org.codeshark.guicebox;
 
+import static org.codeshark.guicebox.Log.*;
+
 /**
  * @author willhains
  */
@@ -19,20 +21,20 @@ public final class MockCluster implements Cluster
 				{
 					try
 					{
-						System.out.println("Joining MockCluster...");
+						log.info("Joining MockCluster...");
 						while(true)
 						{
 							Thread.sleep(2500);
 							startTrigger.run();
-							System.out.println("~~became PRIMARY");
+							log.info("~~became PRIMARY");
 							Thread.sleep(2000);
 							stopTrigger.run();
-							System.out.println("~~became BACKUP");
+							log.info("~~became BACKUP");
 						}
 					}
 					catch(InterruptedException e)
 					{
-						System.out.println("MockCluster interrupted");
+						log.info("MockCluster interrupted");
 					}
 				}
 			};
@@ -45,7 +47,7 @@ public final class MockCluster implements Cluster
 	{
 		if(_delay != null && _delay.isAlive() && !_delay.isInterrupted())
 		{
-			System.out.println("Leaving MockCluster...");
+			log.info("Leaving MockCluster...");
 			_delay.interrupt();
 		}
 	}

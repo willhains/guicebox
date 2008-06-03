@@ -17,13 +17,15 @@ import java.util.*;
  * <ol>
  * <li>supplied in properties/username/*.properties</li>
  * <li>supplied in properties/*.properties</li>
- * <li>default value, when using {@code @Inject(optional=true)}</li>
+ * <li>default value, when using {@code Inject(optional=true)}</li>
  * </ol>
  * 
  * @author willhains
  */
 public class PropertiesModule extends AbstractModule
 {
+	private static final Log log = Log.forClass();
+	
 	// Maps constant names to their values
 	protected final Map<String, String> _constValues = new HashMap<String, String>();
 	
@@ -59,7 +61,7 @@ public class PropertiesModule extends AbstractModule
 		}
 		catch(IOException e)
 		{
-			System.err.println("unable to load properties: " + e);
+			log.error("unable to load properties:", e);
 		}
 	}
 	
@@ -81,26 +83,53 @@ public class PropertiesModule extends AbstractModule
 	@Override
 	protected final void configure()
 	{
+		// Print logo
+		final InputStream logoFile = ClassLoader.getSystemResourceAsStream("logo.txt");
+		if(logoFile != null) try
+		{
+			final BufferedReader reader = new BufferedReader(new InputStreamReader(logoFile));
+			for(String line; (line = reader.readLine()) != null;)
+			{
+				log.info(line);
+			}
+		}
+		catch(IOException e)
+		{
+			log.exception(e);
+		}
+		
 		// Bind all properties by name as a baseline way to access them
 		Names.bindProperties(binder(), _constValues);
 		
 		// Find BindingAnnotations to bind
 		for(String key : _constValues.keySet())
 		{
+			// Mask passwords
+			final String realValue = _constValues.get(key);
+			final String displayValue = key.toLowerCase().endsWith("password")
+				? realValue.replaceAll(".", "*")
+				: realValue;
+			String prefix = "    ";
+			
+			// Try to bind annotated constants
 			try
 			{
+				// Find binding annotation
 				final Class<?> annotation = Class.forName(key);
 				if(annotation.getAnnotation(BindingAnnotation.class) != null)
 				{
 					final Class<? extends Annotation> bindingAnnotation = annotation.asSubclass(Annotation.class);
-					bindConstant().annotatedWith(bindingAnnotation).to(_constValues.get(key));
+					bindConstant().annotatedWith(bindingAnnotation).to(realValue);
+					prefix = "   @";
 				}
 			}
 			catch(ClassNotFoundException e)
 			{
 				// Ignore - these properties will be available via @Named
-				e.printStackTrace();
 			}
+			
+			// Print the property value
+			log.info(String.format(prefix + "%-50s= %s", key, displayValue));
 		}
 	}
 }
