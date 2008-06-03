@@ -77,19 +77,19 @@ This will bind the `Logger` interface to `Log4jLogger`.
 
 == Other Options ==
 
-Besides the logger implementation itself, you can also configure various options for the `Log` API. _(Note that the bindings for these options can also be configured automatically using PropertiesModule or CommandLineModule)_
+Besides the logger implementation itself, you can also configure various options for the LoggingBridge API via properties (see PropertiesModule and CommandLineModule).
 
 === Log Time ===
 
-Bind a `SimpleDateFormat`-compatible datetime format to the `@LogTime` annotation to prefix each log message with a time stamp.
+Set `org.codeshark.guicebox.LogTime` to a `SimpleDateFormat`-compatible datetime format (eg. `HH:mm:ss.SSS`) to prefix each log message with a time stamp.
 
 === Thread Name ===
 
-Bind `true` to the `@LogThread` annotation to prefix each log message with the name of the thread that emitted it.
+Set `org.codeshark.guicebox.LogThread` to `true` to prefix each log message with the name of the thread that emitted it.
 
 === Link to Source ===
 
-Bind `true` to the `@LogSource` annotation to prefix each log message with the class and line number of the source code that emitted it. (In most IDEs this will link directly to the source code.)
+Set `org.codeshark.guicebox.LogSource` to `true` to prefix each log message with the class and line number of the source code that emitted it. (In most IDEs this will link directly to your source code.)
 
 = Creating a Logger Implementation =
 
