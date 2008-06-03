@@ -1,5 +1,7 @@
 package org.codeshark.guicebox.ha;
 
+import static org.codeshark.guicebox.Log.*;
+
 import com.google.inject.*;
 import java.io.*;
 import java.net.*;
@@ -89,7 +91,7 @@ public final class Ping
 				}
 				catch(IOException e)
 				{
-					System.err.println("Network error: " + e);
+					log.error("Network error:", e);
 				}
 				pingListener.onPingTimeout();
 			}

@@ -1,5 +1,7 @@
 package org.codeshark.guicebox;
 
+import static org.codeshark.guicebox.Log.*;
+
 public class UnboundStoppable
 {
 	private static int _instanceCount;
@@ -14,12 +16,12 @@ public class UnboundStoppable
 	public UnboundStoppable()
 	{
 		_instance = ++_instanceCount;
-		System.out.println("Constructed " + this);
+		log.info("Constructed", this);
 	}
 	
 	@Stop
 	public void stopUnbound()
 	{
-		System.out.println("STOPPED " + this);
+		log.info("STOPPED", this);
 	}
 }

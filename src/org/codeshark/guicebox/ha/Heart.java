@@ -4,6 +4,7 @@ import com.google.inject.*;
 import java.io.*;
 import java.net.*;
 import java.util.concurrent.*;
+import org.codeshark.guicebox.*;
 
 /**
  * Utility for sending and receiving UDP heartbeats.
@@ -12,6 +13,8 @@ import java.util.concurrent.*;
  */
 final class Heart
 {
+	private static final Log log = Log.forClass();
+	
 	// Heartbeats from this node
 	private final Provider<Heartbeat> _pulse;
 	
@@ -123,7 +126,7 @@ final class Heart
 							if(_hbMissed < _hbTolerance)
 							{
 								_hbMissed++;
-								System.err.println("Time out " + _hbMissed + "/" + _hbTolerance);
+								log.warn("Time out", _hbMissed, "/", _hbTolerance);
 								_hbStart = System.currentTimeMillis(); // reset interval start
 							}
 							
@@ -132,7 +135,7 @@ final class Heart
 						}
 						catch(Exception e)
 						{
-							System.err.println("Could not read heartbeat: " + e);
+							log.error("Could not read heartbeat:", e);
 						}
 						
 						// Sleep until next iteration
@@ -205,13 +208,13 @@ final class Heart
 							if(_hbFailures <= _hbTolerance)
 							{
 								_hbFailures++;
-								System.err.println(" Couldn't send heartbeat: " + e);
+								log.error("Couldn't send heartbeat:", e);
 							}
 							
 							// Beyond tolerance - stop beating
 							if(_hbFailures >= _hbTolerance)
 							{
-								System.err.println("Heart failure");
+								log.fatal("Heart failure");
 								stopBeating();
 							}
 						}

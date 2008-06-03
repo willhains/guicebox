@@ -1,5 +1,7 @@
 package org.codeshark.guicebox.ha;
 
+import static org.codeshark.guicebox.Log.*;
+
 enum NodeState
 {
 	/**
@@ -10,7 +12,7 @@ enum NodeState
 		@Override
 		NodeState onHeartbeat(Node node, Heart heart, Heartbeat heartbeat, Runnable stopTrigger)
 		{
-			System.out.println("Became STANDBY");
+			log.info("Became STANDBY");
 			return STANDBY.onHeartbeat(node, heart, heartbeat, stopTrigger);
 		}
 		
@@ -23,7 +25,7 @@ enum NodeState
 		@Override
 		NodeState onWkaAlive()
 		{
-			System.out.println("Became STANDBY");
+			log.info("Became STANDBY");
 			return STANDBY;
 		}
 		
@@ -50,7 +52,7 @@ enum NodeState
 		{
 			// Volunteer to take over as primary
 			heart.beat();
-			System.out.println("Became VOLUNTEER");
+			log.info("Became VOLUNTEER");
 			return VOLUNTEER;
 		}
 		
@@ -63,7 +65,7 @@ enum NodeState
 		@Override
 		NodeState onWkaDead(Heart heart, Runnable stopTrigger)
 		{
-			System.out.println("Became DISCONNECTED");
+			log.error("Became DISCONNECTED");
 			return DISCONNECTED;
 		}
 	},
@@ -79,8 +81,9 @@ enum NodeState
 			// If this is the inferior node, step down
 			if(!node.isSuperiorTo(heartbeat.getNode()))
 			{
+				log.warn("Received heartbeat from SUPERIOR node:", heartbeat);
 				heart.stopBeating();
-				System.out.println("Became STANDBY");
+				log.info("Became STANDBY");
 				return STANDBY;
 			}
 			
@@ -92,7 +95,7 @@ enum NodeState
 		NodeState onPeerDead(Heart heart, Runnable startTrigger)
 		{
 			// Take over as primary
-			System.out.println("Became PRIMARY");
+			log.info("Became PRIMARY");
 			startTrigger.run();
 			return PRIMARY;
 		}
@@ -121,6 +124,7 @@ enum NodeState
 			// If this is the superior node, send a heartbeat now to stop the other node
 			if(node.isSuperiorTo(heartbeat.getNode()))
 			{
+				log.warn("Received heartbeat from INFERIOR node:", heartbeat);
 				heart.beat();
 				return this;
 			}
@@ -128,7 +132,7 @@ enum NodeState
 			// Yield to the superior node
 			heart.stopBeating();
 			stopTrigger.run();
-			System.out.println("Became STANDBY");
+			log.warn("Became STANDBY");
 			return STANDBY;
 		}
 		
@@ -150,7 +154,7 @@ enum NodeState
 			// Stop this node
 			stopTrigger.run();
 			heart.stopBeating();
-			System.out.println("Became DISCONNECTED");
+			log.error("Became DISCONNECTED");
 			return DISCONNECTED;
 		}
 	};

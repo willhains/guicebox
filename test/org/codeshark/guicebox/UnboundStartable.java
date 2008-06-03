@@ -1,6 +1,9 @@
 package org.codeshark.guicebox;
 
+import static org.codeshark.guicebox.Log.*;
+
 import com.google.inject.*;
+import com.google.inject.name.*;
 
 @Singleton
 public class UnboundStartable
@@ -11,18 +14,22 @@ public class UnboundStartable
 	@Override
 	public String toString()
 	{
-		return getClass().getSimpleName() + " instance #" + _instance;
+		return getClass().getSimpleName() + " instance #" + _instance + " (anotherParam=" + _anotherParam + ")";
 	}
 	
-	public UnboundStartable()
+	private final String _anotherParam;
+	
+	@Inject
+	public UnboundStartable(@Named("non.annotation.property") String anotherParam)
 	{
 		_instance = ++_instanceCount;
-		System.out.println("Constructed " + this);
+		_anotherParam = anotherParam;
+		log.info("Constructed ", this);
 	}
 	
 	@Start
 	public void startUnbound()
 	{
-		System.out.println("STARTED " + this);
+		log.info("STARTED", this);
 	}
 }

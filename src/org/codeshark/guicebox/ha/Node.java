@@ -31,7 +31,6 @@ final class Node implements Comparable<Node>, Serializable
 	public boolean isSuperiorTo(Node that)
 	{
 		final boolean superior = this.compareTo(that) < 0;
-		System.out.println("Received heartbeat from " + (superior ? "INFERIOR" : "SUPERIOR") + " node: " + that);
 		return superior;
 	}
 	
