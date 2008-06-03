@@ -148,7 +148,7 @@ final class Heart
 				}
 			}
 		};
-		_listen.setDaemon(true);
+		_listen.setDaemon(false);
 		_listen.start();
 	}
 	
@@ -229,7 +229,7 @@ final class Heart
 				}
 			}
 		};
-		_beat.setDaemon(true);
+		_beat.setDaemon(false);
 		_beat.start();
 	}
 	
