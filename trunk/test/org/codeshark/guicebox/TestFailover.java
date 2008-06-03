@@ -36,6 +36,7 @@ public class TestFailover extends AbstractModule
 		Thread.sleep(20000);
 		log.info("------KILLING GUICEBOX------");
 		guicebox.kill();
+//		System.exit(0); also works
 	}
 	
 	@Override
