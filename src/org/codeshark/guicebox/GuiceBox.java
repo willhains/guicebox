@@ -97,6 +97,19 @@ public final class GuiceBox implements GuiceBoxMBean
 		// Create a GuiceBox
 		final GuiceBox guicebox = Guice.createInjector(stage, extraModules).getInstance(GuiceBox.class);
 		guicebox._init();
+		
+		// Install a shutdown hook
+		Runtime.getRuntime().addShutdownHook(new Thread("GuiceBox shutdown")
+		{
+			@Override
+			public void run()
+			{
+				guicebox.kill();
+				System.out.flush();
+				System.err.flush();
+			}
+		});
+		
 		return guicebox;
 	}
 	
@@ -385,7 +398,6 @@ public final class GuiceBox implements GuiceBoxMBean
 				try
 				{
 					// Run start commands
-					log.debug(guicebox._startCommands.size(), "start commands...");
 					for(Runnable cmd : guicebox._startCommands)
 					{
 						cmd.run();
@@ -411,7 +423,6 @@ public final class GuiceBox implements GuiceBoxMBean
 			GuiceBoxState kill(GuiceBox guicebox)
 			{
 				// Run kill commands
-				log.debug(guicebox._killCommands.size(), "kill commands...");
 				for(Runnable cmd : guicebox._killCommands)
 				{
 					try
@@ -444,7 +455,6 @@ public final class GuiceBox implements GuiceBoxMBean
 				try
 				{
 					// Run stop methods
-					log.debug(guicebox._stopCommands.size(), "stop commands...");
 					for(Runnable cmd : guicebox._stopCommands)
 					{
 						cmd.run();
