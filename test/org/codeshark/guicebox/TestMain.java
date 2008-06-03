@@ -1,5 +1,7 @@
 package org.codeshark.guicebox;
 
+import static org.codeshark.guicebox.Log.*;
+
 import com.google.inject.*;
 
 public class TestMain extends AbstractModule
@@ -11,14 +13,14 @@ public class TestMain extends AbstractModule
 	public static void main(String[] args) throws InterruptedException
 	{
 		// Initialise application
-		final GuiceBox guicebox = GuiceBox.init(Guice.createInjector(new TestMain(), new CommandLineModule(args)));
+		final GuiceBox guicebox = GuiceBox.init(new TestMain(), new CommandLineModule(args));
 		
 		// Start application
 		guicebox.start();
 		
 		// Wait, then start application again
 		Thread.sleep(10000);
-		System.out.println("------------------------");
+		log.info("------------------------");
 		guicebox.start();
 		
 		// Wait, then kill application

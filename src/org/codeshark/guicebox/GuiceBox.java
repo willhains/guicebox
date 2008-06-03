@@ -10,6 +10,7 @@ import java.util.concurrent.*;
  * Start}, {@link Stop} and {@link Kill} annotations. The lifecycle of the application is then controlled via these
  * annotated members.
  * 
+ * @see http://code.google.com/p/guicebox/wiki/GuiceBox
  * @author willhains
  */
 @Singleton
@@ -51,12 +52,44 @@ public final class GuiceBox
 	}
 	
 	/**
-	 * Equivalent to {@code injector.getInstance(GuiceBox.class).init()}.
+	 * @see Guice#createInjector(Module...)
+	 */
+	public static GuiceBox init(Module... modules)
+	{
+		return init(Stage.DEVELOPMENT, modules);
+	}
+	
+	/**
+	 * @see Guice#createInjector(Iterable)
+	 */
+	public static GuiceBox init(Iterable<Module> modules)
+	{
+		return init(Stage.DEVELOPMENT, modules);
+	}
+	
+	/**
+	 * @see Guice#createInjector(Stage, Module...)
+	 */
+	public static GuiceBox init(Stage stage, Module... modules)
+	{
+		return init(stage, Arrays.asList(modules));
+	}
+	
+	/**
+	 * Initialises Guice and GuiceBox with the specified modules.
 	 * 
 	 * @return the GuiceBox instance ready to start.
+	 * @see Guice#createInjector(Stage, Iterable)
 	 */
-	public static GuiceBox init(Injector injector)
+	public static GuiceBox init(Stage stage, Iterable<Module> modules)
 	{
+		final List<Module> extraModules = new ArrayList<Module>();
+		extraModules.add(new GuiceBoxModule());
+		for(Module m : modules)
+		{
+			extraModules.add(m);
+		}
+		final Injector injector = Guice.createInjector(stage, extraModules);
 		final GuiceBox guicebox = injector.getInstance(GuiceBox.class);
 		guicebox.init();
 		return guicebox;
@@ -244,12 +277,12 @@ public final class GuiceBox
 					Collections.reverse(guicebox._killCommands);
 					
 					// Transition state
-					System.out.println("GuiceBox INITIALISED");
+					log.debug("GuiceBox INITIALISED");
 					return INITIALISED;
 				}
 				catch(Throwable e)
 				{
-					e.printStackTrace();
+					log.exception(e);
 					return INITIALISED.kill(guicebox);
 				}
 			}
@@ -290,7 +323,7 @@ public final class GuiceBox
 							}
 							catch(Exception e)
 							{
-								e.printStackTrace();
+								log.exception(e);
 								kill(guicebox);
 							}
 						}
@@ -350,12 +383,12 @@ public final class GuiceBox
 					{
 						cmd.run();
 					}
-					System.out.println("GuiceBox STARTED");
+					log.debug("GuiceBox STARTED");
 					return STARTED;
 				}
 				catch(Throwable e)
 				{
-					e.printStackTrace();
+					log.exception(e);
 					return STARTED.stop(guicebox).kill(guicebox);
 				}
 			}
@@ -364,7 +397,7 @@ public final class GuiceBox
 			GuiceBoxState kill(GuiceBox guicebox)
 			{
 				guicebox._safe.shutdown();
-				System.out.println("GuiceBox KILLED");
+				log.info("GuiceBox KILLED");
 				return this;
 			}
 		},
@@ -389,16 +422,18 @@ public final class GuiceBox
 					{
 						cmd.run();
 					}
-					System.out.println("GuiceBox STOPPED");
+					log.debug("GuiceBox STOPPED");
 					return INITIALISED;
 				}
 				catch(Throwable e)
 				{
-					e.printStackTrace();
+					log.exception(e);
 					return INITIALISED.kill(guicebox);
 				}
 			}
 		};
+		
+		protected final Log log = Log.forClass();
 		
 		GuiceBoxState init(@SuppressWarnings("unused") GuiceBox guicebox)
 		{
