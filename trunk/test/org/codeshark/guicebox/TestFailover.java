@@ -11,7 +11,7 @@ public class TestFailover extends AbstractModule
 	{
 	}
 	
-	public static void main(String[] args) throws InterruptedException
+	public static void main(String[] args) throws Exception
 	{
 		// Initialise application
 		final GuiceBox guicebox = GuiceBox.init(
@@ -22,6 +22,10 @@ public class TestFailover extends AbstractModule
 		// Start application
 		log.info("------STARTING GUICEBOX------");
 		guicebox.start();
+		
+		// Register with JMX
+		guicebox.registerJMX();
+		log.info("JMX controls registered");
 		
 		// Wait, then start application again
 		Thread.sleep(20000);
