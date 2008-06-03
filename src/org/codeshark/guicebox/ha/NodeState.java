@@ -1,6 +1,6 @@
 package org.codeshark.guicebox.ha;
 
-import static org.codeshark.guicebox.Log.*;
+import org.codeshark.guicebox.*;
 
 enum NodeState
 {
@@ -158,6 +158,8 @@ enum NodeState
 			return DISCONNECTED;
 		}
 	};
+	
+	protected static final Log log = Log.forClass();
 	
 	abstract NodeState onHeartbeat(Node node, Heart heart, Heartbeat heartbeat, Runnable stopTrigger);
 	
