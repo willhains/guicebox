@@ -13,6 +13,10 @@ Like dependency injection, "lifecycle injection" (cute name, huh?) means you can
 
 Like Guice, GuiceBox uses annotations to control how it works at runtime. All you have to do is annotate your methods and Runnable fields with `@Start`, `@Stop` and `@Kill` and GuiceBox will use these hints to manage initialisation, start, pause, and shutdown of your application. Also like Guice, the benefit of using annotations for this is that your test code can completely ignore them, making unit testing much easier.
 
+http://guicebox.googlecode.com/svn/wiki/images/guicebox_states.png
+
+GuiceBox manages your application's overall state, which can be either *STARTED* or *STOPPED*. You can move back and forth between STARTED and STOPPED as many times as you like. (There are more states when you use HotFailover.)
+
 = Failover =
 
 Another key feature of GuiceBox is HotFailover. You can run two (or more) instances of your application in an active-passive cluster. GuiceBox will automatically detect the failure of the primary node and start up one of the back-up nodes. This is done peer-to-peer with no single point of failure.
