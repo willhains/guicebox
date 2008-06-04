@@ -3,15 +3,29 @@
 
 = Introduction =
 
-GuiceBox is a "lifecycle injection" framework built on top of [http://code.google.com/p/google-guice Guice] to manage the life cycle of applications and provide a simple but effective high availability (HA) solution.
+GuiceBox is an open source *lifecycle injection* framework built on top of [http://code.google.com/p/google-guice Guice] to manage the life cycle of Java applications, and provide a simple but effective high availability (HA) solution.
 
 = Lifecycle Injection =
 
-Like dependency injection, "Lifecycle Injection" (cute name, huh?) means you can leave the tedium of managing application lifecycle to the framework and concentrate on writing code that does the important stuff.
+Java applications with more than a few classes tend to evolve fragile, often complicated initialisation and start-up dependencies. Worse, most applications _should_ be cleaning up resources as they shut down, but too often don't. GuiceBox aims to solve these issues using a modular approach that keeps your application elegant and safe.
 
-Like Guice, GuiceBox uses annotations to control how it works at runtime. All you have to do is annotate your methods and Runnable fields with `@Start`, `@Stop` and `@Kill` and GuiceBox will use these hints to manage initialisation, start, pause, and shutdown of your application. Like Guice, the benefit of using annotations for this is that your test code can completely ignore them, making unit testing much easier.
+Like dependency injection, "lifecycle injection" (cute name, huh?) means you can leave the tedium of managing application lifecycle to the framework and concentrate on writing code that does the important stuff.
 
-== How to Use ==
+Like Guice, GuiceBox uses annotations to control how it works at runtime. All you have to do is annotate your methods and Runnable fields with `@Start`, `@Stop` and `@Kill` and GuiceBox will use these hints to manage initialisation, start, pause, and shutdown of your application. Also like Guice, the benefit of using annotations for this is that your test code can completely ignore them, making unit testing much easier.
+
+= Failover =
+
+Another key feature of GuiceBox is HotFailover. You can run two (or more) instances of your application in an active-passive cluster. GuiceBox will automatically detect the failure of the primary node and start up one of the back-up nodes. This is done peer-to-peer with no single point of failure.
+
+= Logging =
+
+GuiceBox provides a slick API for logging that bridges to your favourite logging library. There is also a default logging implementation that ain't too shabby. See LoggingBridge for details.
+
+= Properties =
+
+GuiceBox makes it easy to bind large numbers of constants to Guice through the PropertiesModule and CommandLineModule.
+
+= Getting Started =
 
 To start using GuiceBox, first create a class with a `main` method that will launch your application. The `main` method should look something like this:
 {{{
@@ -33,15 +47,3 @@ When something in your application calls `guicebox.stop()` or `guicebox.kill()`,
 Your application may be started and stopped multiple times. To shut the application down, call `guicebox.kill()`. This will call all your methods annotated with `@Kill` and shut down GuiceBox's internal threads, causing the JVM to exit.
 
 The `GuiceBox` class is a `@Singleton` and so can be injected into your classes. You will probably need to do this so that something other than `main` can call `guicebox.kill()`. Alternatively, you can just call `System.exit(0)` as there is a shutdown hook that will make sure GuiceBox goes through `stop()` and `kill()` before the JVM croaks.
-
-= Failover =
-
-Another key feature of GuiceBox is HotFailover. You can run two (or more) instances of your application in an active-passive cluster. GuiceBox will automatically detect the failure of the primary node and start up one of the back-up nodes. This is done peer-to-peer with no single point of failure.
-
-= Logging =
-
-GuiceBox provides a slick API for logging that bridges to your favourite logging library. There is also a default logging implementation that ain't too shabby. See LoggingBridge for details.
-
-= Properties =
-
-GuiceBox makes it easy to bind large numbers of constants to Guice through the PropertiesModule and CommandLineModule.
