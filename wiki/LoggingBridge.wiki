@@ -91,9 +91,9 @@ Set `org.codeshark.guicebox.LogThread` to `true` to prefix each log message with
 
 Set `org.codeshark.guicebox.LogSource` to `true` to prefix each log message with the class and line number of the source code that emitted it. (In most IDEs this will link directly to your source code.)
 
-=== Example ===
+=== Sample Output ===
 
-Following is an example of ConsoleLogger output with all of the above options turned on:
+Following is a sample of ConsoleLogger output with all of the above options turned on:
 {{{
 10:17:49.291 (UnboundStartable.java:27) [main] Constructed  UnboundStartable instance #1 (anotherParam=Not an annotation)
 10:17:49.382 (GuiceBox.java:189) [main] GuiceBox INITIALISED
