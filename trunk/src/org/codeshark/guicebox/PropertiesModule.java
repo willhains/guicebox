@@ -110,6 +110,7 @@ public class PropertiesModule extends AbstractModule
 				? realValue.replaceAll(".", "*")
 				: realValue;
 			String prefix = "    ";
+			boolean warn = false;
 			
 			// Try to bind annotated constants
 			try
@@ -125,11 +126,24 @@ public class PropertiesModule extends AbstractModule
 			}
 			catch(ClassNotFoundException e)
 			{
-				// Ignore - these properties will be available via @Named
+				// If the key looks like it's meant to match a binding annotation, warn up front
+				for(String pkg : _PACKAGE_PREFIXES)
+				{
+					if(key.startsWith(pkg) || key.contains("." + pkg))
+					{
+						warn = true;
+						break;
+					}
+				}
 			}
 			
 			// Print the property value
-			log.info(String.format(prefix + "%-50s= %s", key, displayValue));
+			final String propertyLog = String.format(prefix + "%-50s= %s", key, displayValue);
+			if(warn) log.warn(propertyLog);
+			else log.info(propertyLog);
 		}
 	}
+	
+	// Property prefixes considered to be intended as binding annotations
+	private static final List<String> _PACKAGE_PREFIXES = Arrays.asList("com.", "org.", "net.");
 }
