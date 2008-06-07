@@ -92,7 +92,7 @@ When you start your application, PropertiesModule will [LoggingBridge log] the v
    @org.codeshark.guicebox.Param2                     = username2
    @org.codeshark.guicebox.Param1                     = username1
 }}}
-Notice that properties that have been bound to annotations include an `@` symbol on the left. Here we can see the typo I made in `Param3` has caused this to not be bound to the annotation properly.
+Notice that properties that have been bound to annotations include an `@` symbol on the left. Here we can see the typo I made in `Param3` has caused this to not be bound to the annotation properly. This line is output to `stderr` so in most IDEs this will also show in red.
 
 Notice also that the value for `my.secret.password` has been masked. Any property that ends in "password" (ignoring case) will be masked in this way. If your organisation has an application security team that is required to supply passwords, you can have them copy a `password.properties` file into your environment for GuiceBox to read. Development staff can then analyse log files without risk of seeing the password.
 
