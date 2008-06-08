@@ -8,9 +8,10 @@ import org.apache.log4j.xml.*;
 import org.codeshark.guicebox.*;
 
 /**
- * {@link Logger} implementation for popular logging library {@linkplain http://logging.apache.org/log4j/1.2/ Log4j}.
- * Configures Log4j with the first {@code log4j.xml} file it finds in the classpath (including JARs).
+ * {@link Logger} implementation for popular logging library Log4j. Configures Log4j with the first {@code log4j.xml}
+ * file it finds in the classpath (including JARs).
  * 
+ * @see "http://logging.apache.org/log4j/1.2/"
  * @author willhains
  */
 public final class Log4jLogger implements org.codeshark.guicebox.Logger
