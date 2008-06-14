@@ -1,5 +1,10 @@
-#summary Description of how active-passive failover works in GuiceBox.
+#summary Describes how active-passive failover works in GuiceBox.
 
 = Introduction =
 
-TODO
+When you use GuiceBox lifecycle injection to manage the initialisation, start-up and shutdown of your application, you can easily add _active-passive clustering_ to increase uptime.
+
+= Active-Passive (aka Failover) =
+
+http://guicebox.googlecode.com/svn/wiki/images/active_passive.png
+
