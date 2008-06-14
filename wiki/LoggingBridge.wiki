@@ -71,7 +71,7 @@ public class MyClass
 
 If you are happy to use the default ConsoleLogger implementation, you don't have to do any configuration. To use another implementation, simply include the implementation's module when creating the Guice Injector. For example, to bind to Log4j:
 {{{
-final Injector injector = Guice.createInjector(new Log4jModule());
+final GuiceBox guicebox = GuiceBox.init(new Log4jModule());
 }}}
 This will bind the `Logger` interface to `Log4jLogger`.
 
