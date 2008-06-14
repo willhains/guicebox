@@ -8,7 +8,7 @@ GuiceBox's logging bridge (`Log`) allows you to easily switch between different 
 
 `Log` solves one of the common API problems of many logging libraries, namely that in order to avoid the performance overhead of building multi-part log messages, you are forced to call something like `isLoggable()` before each and every potentially filtered log statement. Instead of:
 {{{
-if(isLoggable(INFO)) log.info("Found " + count + " instances in " + fileCount + " files");
+if(log.isLoggable(INFO)) log.info("Found " + count + " instances in " + fileCount + " files");
 }}}
 ...you can do this:
 {{{
