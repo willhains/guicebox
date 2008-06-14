@@ -41,7 +41,7 @@ public static void main(String[] args)
     guicebox.start();
 }
 }}}
-_Note: "MyApp" is the name of your application. It is used by the nodes of the same cluster to recognise one other._
+_Note: `"MyApp"` is the name of your application. It is used by the nodes of the same cluster to recognise one other._
 
 == Step 3: Configuration ==
 
