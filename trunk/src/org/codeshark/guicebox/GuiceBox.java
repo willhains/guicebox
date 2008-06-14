@@ -8,11 +8,11 @@ import java.util.concurrent.*;
 import javax.management.*;
 
 /**
- * Entry point to GuiceBox. Takes a Guice {@link Injector} and searches its bindings for classes annotated with {@link
- * Start}, {@link Stop} and {@link Kill} annotations. The lifecycle of the application is then controlled via these
- * annotated members.
+ * Entry point to GuiceBox. Takes a Guice {@link Injector} and searches its bindings for classes annotated with
+ * {@link Start}, {@link Stop} and {@link Kill} annotations. The lifecycle of the application is then controlled via
+ * these annotated members. See <a href="http://code.google.com/p/guicebox/wiki/GuiceBox">GuiceBox documentation</a> for
+ * details.
  * 
- * @see http://code.google.com/p/guicebox/wiki/GuiceBox
  * @author willhains
  */
 @Singleton
@@ -371,13 +371,14 @@ public final class GuiceBox implements GuiceBoxMBean
 	}
 	
 	/**
-	 * Registers GuiceBox with JMX.
+	 * Registers GuiceBox with JMX. See <a
+	 * href="http://java.sun.com/j2se/1.5.0/docs/guide/management/agent.html#PasswordAccessFiles">JMX Documentation</a>
+	 * for details on how to secure access.
 	 * 
 	 * @throws JMException if the MBean couldn't be registered for some reason.
 	 * @see ObjectName#ObjectName(String)
 	 * @see MBeanServer#unregisterMBean(ObjectName)
 	 * @see MBeanServer#registerMBean(Object, ObjectName)
-	 * @see http://java.sun.com/j2se/1.5.0/docs/guide/management/agent.html#PasswordAccessFiles
 	 */
 	public void registerJMX() throws JMException
 	{
