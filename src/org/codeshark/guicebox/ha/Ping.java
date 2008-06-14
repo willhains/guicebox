@@ -1,7 +1,6 @@
 package org.codeshark.guicebox.ha;
 
 import static org.codeshark.guicebox.Log.*;
-
 import com.google.inject.*;
 import java.io.*;
 import java.net.*;
@@ -31,12 +30,12 @@ public final class Ping
 	// How long to wait between each ping
 	@Inject(optional = true)
 	@PingInterval
-	private int _pingInterval = 10000;
+	private int _pingInterval = 1500;
 	
 	// How many multiples of the ping interval to wait before timing out
 	@Inject(optional = true)
 	@PingTolerance
-	private int _pingTolerance = 5;
+	private int _pingTolerance = 3;
 	
 	/**
 	 * Prepares a ping to the specified well-known address (WKA). Call {@link #start(PingListener)} to start pinging.
@@ -95,6 +94,7 @@ public final class Ping
 				{
 					log.error("Network error:", e);
 				}
+				log.error("Ping timeout - could not contact WKA at", _wka.getHostAddress());
 				pingListener.onPingTimeout();
 			}
 		};
