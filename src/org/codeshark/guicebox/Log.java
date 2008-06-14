@@ -7,9 +7,9 @@ import java.util.*;
 /**
  * A logging bridge to allow applications to easily switch between different logging libraries (for example, at
  * different phases of development). The default logging implementation is {@link ConsoleLogger}. To configure a
- * different implementation, bind a {@link Logger} using Guice.
+ * different implementation, bind a {@link Logger} using Guice. See <a
+ * href="http://code.google.com/p/guicebox/wiki/LoggingBridge">GuiceBox documentation</a> for details.
  * 
- * @see http://code.google.com/p/guicebox/wiki/LoggingBridge
  * @author willhains
  */
 public final class Log
