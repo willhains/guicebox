@@ -12,20 +12,37 @@ import java.io.*;
  */
 final class ConsoleLogger implements Logger
 {
+	ConsoleLogger()
+	{
+		// Restrict to package access
+	}
+	
 	// Output stream for INFO and below
-	@Inject(optional = true)
-	@StdOut
 	private PrintStream _out = System.out;
 	
-	// Output stream for WARN and above
 	@Inject(optional = true)
-	@StdErr
+	void setOutStream(@StdOut PrintStream out)
+	{
+		_out = out;
+	}
+	
+	// Output stream for WARN and above
 	private PrintStream _err = System.err;
 	
-	// Minimum log level to output
 	@Inject(optional = true)
-	@MinLogLevel
+	void setErrStream(@StdErr PrintStream err)
+	{
+		_err = err;
+	}
+	
+	// Minimum log level to output
 	private LogLevel _minLevel = LogLevel.DEBUG;
+	
+	@Inject(optional = true)
+	void setMinLevel(@MinLogLevel LogLevel minLevel)
+	{
+		_minLevel = minLevel;
+	}
 	
 	/**
 	 * This logger does not support channels.

@@ -13,7 +13,7 @@ import java.lang.annotation.*;
  * @author willhains
  */
 @Retention(RUNTIME)
-@Target({ FIELD, METHOD })
+@Target({ FIELD, PARAMETER })
 @BindingAnnotation
 public @interface StdErr
 {	
