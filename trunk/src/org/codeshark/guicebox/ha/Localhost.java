@@ -15,6 +15,6 @@ import java.lang.annotation.*;
 @Target({ FIELD, PARAMETER })
 @BindingAnnotation
 public @interface Localhost
-{	
-
+{
+	
 }

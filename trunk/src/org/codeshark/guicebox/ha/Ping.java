@@ -55,9 +55,9 @@ public final class Ping
 	
 	/**
 	 * Starts pinging the {@link WellKnownAddress} every {@link PingInterval}. Each time a response is received, the
-	 * specified listener will get a {@link PingListener#onPing()} callback. If no response is received within {@link
-	 * PingInterval} x {@link PingTolerance}, the specified listener will get a {@link PingListener#onPingTimeout()}
-	 * callback.
+	 * specified listener will get a {@link PingListener#onPing()} callback. If no response is received within
+	 * {@link PingInterval} x {@link PingTolerance}, the specified listener will get a
+	 * {@link PingListener#onPingTimeout()} callback.
 	 */
 	public synchronized void start(final PingListener pingListener)
 	{

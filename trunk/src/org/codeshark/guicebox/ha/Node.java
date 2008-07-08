@@ -35,8 +35,8 @@ final class Node implements Comparable<Node>, Serializable
 	}
 	
 	/**
-	 * Compares nodes first by start time, then by IP address, then by process ID. Consistent with {@link
-	 * #equals(Object)}.
+	 * Compares nodes first by start time, then by IP address, then by process ID. Consistent with
+	 * {@link #equals(Object)}.
 	 */
 	@Override
 	public int compareTo(Node that)

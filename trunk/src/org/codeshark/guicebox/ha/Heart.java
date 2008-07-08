@@ -57,10 +57,10 @@ final class Heart
 	}
 	
 	/**
-	 * Starts listening for heartbeats. Each time a heartbeat is received, the specified listener will get a {@link
-	 * HeartbeatListener#onHeartbeat(Heartbeat)} callback. If no response is received within {@link HeartbeatInterval} x
-	 * {@link HeartbeatTolerance}, the specified listener will get a {@link HeartbeatListener#onHeartbeatTimeout()}
-	 * callback.
+	 * Starts listening for heartbeats. Each time a heartbeat is received, the specified listener will get a
+	 * {@link HeartbeatListener#onHeartbeat(Heartbeat)} callback. If no response is received within
+	 * {@link HeartbeatInterval} x {@link HeartbeatTolerance}, the specified listener will get a
+	 * {@link HeartbeatListener#onHeartbeatTimeout()} callback.
 	 */
 	public synchronized void listen(final HeartbeatListener heartbeatListener)
 	{
@@ -161,8 +161,8 @@ final class Heart
 	}
 	
 	/**
-	 * Starts sending heartbeats to the {@link GroupAddress}, starting immediately and followed once every {@link
-	 * HeartbeatInterval}.
+	 * Starts sending heartbeats to the {@link GroupAddress}, starting immediately and followed once every
+	 * {@link HeartbeatInterval}.
 	 */
 	public synchronized void beat()
 	{

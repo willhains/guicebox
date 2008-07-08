@@ -15,6 +15,6 @@ import java.lang.annotation.*;
 @Target({ FIELD, METHOD })
 @BindingAnnotation
 public @interface LogThread
-{	
-
+{
+	
 }
