@@ -6,7 +6,6 @@ import static org.junit.Assert.*;
 
 import com.google.inject.*;
 import java.lang.annotation.*;
-import java.util.*;
 import org.junit.*;
 
 public class CommandLineModuleTest
@@ -19,45 +18,48 @@ public class CommandLineModuleTest
 	@Test
 	public void testSingleArgument() throws Exception
 	{
-		final Map<String, String> options = new CommandLineModule(_split("-single TEST"))._constValues;
-		assertEquals("TEST", options.get("single"));
+		final CommandLineModule module = new CommandLineModule(_split("-single TEST"));
+		assertEquals("TEST", module.getConstant("single"));
 	}
 	
 	@Test
 	public void testMultipleArguments() throws Exception
 	{
-		final Map<String, String> options = new CommandLineModule(_split("-one 1 -two 2 -three 3"))._constValues;
-		assertEquals("1", options.get("one"));
-		assertEquals("2", options.get("two"));
-		assertEquals("3", options.get("three"));
+		final CommandLineModule module = new CommandLineModule(_split("-one 1 -two 2 -three 3"));
+		assertEquals("1", module.getConstant("one"));
+		assertEquals("2", module.getConstant("two"));
+		assertEquals("3", module.getConstant("three"));
 	}
 	
 	@Test
 	public void testNoValueGiven() throws Exception
 	{
-		final Map<String, String> options = new CommandLineModule(_split("-one 1 -two 2 -three"))._constValues;
-		assertEquals("1", options.get("one"));
-		assertEquals("2", options.get("two"));
-		assertEquals("true", options.get("three"));
+		final CommandLineModule module = new CommandLineModule(_split("-one 1 -two 2 -three"));
+		assertEquals("1", module.getConstant("one"));
+		assertEquals("2", module.getConstant("two"));
+		assertEquals("true", module.getConstant("three"));
 	}
 	
 	@Retention(RUNTIME)
 	@Target({ FIELD, PARAMETER })
 	@BindingAnnotation
 	public @interface One
-	{}
+	{
+	}
 	
 	@Retention(RUNTIME)
 	@Target({ FIELD, PARAMETER })
 	@BindingAnnotation
 	public @interface Two
-	{}
+	{
+	}
 	
 	@Retention(RUNTIME)
 	@Target({ FIELD, PARAMETER })
 	@BindingAnnotation
 	public @interface Three
-	{}
+	{
+	}
 	
 	private static final class Injectable
 	{
@@ -79,7 +81,7 @@ public class CommandLineModuleTest
 	{
 		final Injector injector = Guice.createInjector(new CommandLineModule(_split( //
 		"-org.codeshark.guicebox.CommandLineModuleTest$One 1 "
-			+ "-org.codeshark.guicebox.CommandLineModuleTest$Three 3 ")));
+		    + "-org.codeshark.guicebox.CommandLineModuleTest$Three 3 ")));
 		final Injectable injected = injector.getInstance(Injectable.class);
 		
 		assertEquals("1", injected.one);

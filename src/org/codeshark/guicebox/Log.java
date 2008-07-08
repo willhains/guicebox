@@ -172,4 +172,12 @@ public final class Log
 	{
 		return _imp.getClass().getSimpleName() + " for " + _imp.toString();
 	}
+	
+	/**
+	 * Direct access to the logger implementation.
+	 */
+	public Logger getLogger()
+	{
+		return _imp;
+	}
 }
