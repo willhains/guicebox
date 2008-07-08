@@ -17,6 +17,6 @@ import java.text.*;
 @Target({ FIELD, METHOD })
 @BindingAnnotation
 public @interface LogTime
-{	
-
+{
+	
 }

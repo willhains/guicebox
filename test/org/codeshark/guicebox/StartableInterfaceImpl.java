@@ -13,18 +13,18 @@ public class StartableInterfaceImpl implements StartableInterface
 	public String toString()
 	{
 		return new StringBuilder(getClass().getSimpleName())
-			.append(" instance #")
-			.append(_instance)
-			.append(" (param1=")
-			.append(param1)
-			.append(", param2=")
-			.append(param2)
-			.append(", param3=")
-			.append(param3)
-			.append(", param4=")
-			.append(param4)
-			.append(")")
-			.toString();
+		    .append(" instance #")
+		    .append(_instance)
+		    .append(" (param1=")
+		    .append(param1)
+		    .append(", param2=")
+		    .append(param2)
+		    .append(", param3=")
+		    .append(param3)
+		    .append(", param4=")
+		    .append(param4)
+		    .append(")")
+		    .toString();
 	}
 	
 	@Inject(optional = true)

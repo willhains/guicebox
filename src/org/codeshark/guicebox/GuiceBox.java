@@ -114,8 +114,8 @@ public final class GuiceBox implements GuiceBoxMBean
 	}
 	
 	/**
-	 * Initialises the application with the specified Guice bindings. All the bound Guice classes that contain {@link
-	 * Start}, {@link Stop} and/or {@link Kill} annotations will be bootstrapped. If anything goes wrong during
+	 * Initialises the application with the specified Guice bindings. All the bound Guice classes that contain
+	 * {@link Start}, {@link Stop} and/or {@link Kill} annotations will be bootstrapped. If anything goes wrong during
 	 * bootstrapping, the application will be killed.
 	 */
 	private void _init()
