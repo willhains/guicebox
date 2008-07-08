@@ -24,44 +24,80 @@ import java.util.*;
  */
 public class PropertiesModule extends AbstractModule
 {
-	private static final Log log = Log.forClass();
-	
-	// Maps constant names to their values
-	protected final Map<String, String> _constValues = new HashMap<String, String>();
-	
 	public PropertiesModule()
 	{
-		// Load constant values from properties files
-		_loadPropertiesDirectory(new File("properties/"));
-		_loadPropertiesDirectory(new File("properties/" + System.getProperty("user.name") + "/"));
+		this(Log.forClass().getLogger(), _loadLogHeader(), _loadPropertiesFiles());
 	}
 	
-	// Searches specified path for .properties files and loads their contents into _constValues
-	private void _loadPropertiesDirectory(final File basePropertiesDir)
+	private static String _loadLogHeader()
 	{
-		try
+		// Load the log header
+		final StringBuffer header = new StringBuffer();
+		final File headerFile = new File("loghead.txt");
+		if(headerFile.exists()) try
 		{
-			if(basePropertiesDir.exists() && basePropertiesDir.isDirectory())
-			{
-				for(File propFile : basePropertiesDir.listFiles())
-				{
-					if(propFile.getName().endsWith(".properties"))
-					{
-						final Properties props = new Properties();
-						props.load(new BufferedReader(new FileReader(propFile)));
-						for(Object oKey : props.keySet())
-						{
-							final String key = String.valueOf(oKey);
-							final String value = props.getProperty(key);
-							setConstant(key, value);
-						}
-					}
-				}
-			}
+			final BufferedReader reader = _read(headerFile);
+			for(String line; (line = reader.readLine()) != null; header.append('\n').append(line));
 		}
 		catch(IOException e)
 		{
-			log.error("unable to load properties:", e);
+			// ignore
+		}
+		return header.toString();
+	}
+	
+	private static List<Reader> _loadPropertiesFiles()
+	{
+		final List<Reader> propFiles = new ArrayList<Reader>();
+		for(String path : Arrays.asList("properties/", "properties/" + System.getProperty("user.name") + "/"))
+		{
+			final File propDir = new File(path);
+			try
+			{
+				if(propDir.exists() && propDir.isDirectory()) for(File file : propDir.listFiles())
+				{
+					if(file.getName().endsWith(".properties")) propFiles.add(_read(file));
+				}
+			}
+			catch(FileNotFoundException e)
+			{
+				// impossible
+			}
+		}
+		return propFiles;
+	}
+	
+	private static BufferedReader _read(File file) throws FileNotFoundException
+	{
+		return new BufferedReader(new FileReader(file));
+	}
+	
+	private final Logger log;
+	
+	// Maps constant names to their values
+	private final Properties _constValues = new Properties();
+	
+	/**
+	 * Should be called only from unit tests.
+	 */
+	PropertiesModule(Logger logger, String header, List<Reader> propertiesFiles)
+	{
+		log = logger;
+		
+		// Print the log header
+		if(header != null && header.trim().length() > 0) log.log(LogLevel.INFO, header);
+		
+		// Load properties files from the environment
+		for(Reader reader : propertiesFiles)
+		{
+			try
+			{
+				_constValues.load(reader);
+			}
+			catch(IOException e)
+			{
+				log.log(LogLevel.ERROR, "unable to load properties: " + e);
+			}
 		}
 	}
 	
@@ -72,9 +108,17 @@ public class PropertiesModule extends AbstractModule
 	 * @param key the name of the constant - may be either the FQN of a {@link BindingAnnotation} or a simple name.
 	 * @param value the value of the constant.
 	 */
-	protected final void setConstant(final String key, final String value)
+	protected final void setConstant(String key, String value)
 	{
 		_constValues.put(key, value);
+	}
+	
+	/**
+	 * @return the value of the specified key.
+	 */
+	protected final String getConstant(String key)
+	{
+		return _constValues.getProperty(key);
 	}
 	
 	/**
@@ -83,67 +127,34 @@ public class PropertiesModule extends AbstractModule
 	@Override
 	protected final void configure()
 	{
-		// Print logo
-		final InputStream logoFile = ClassLoader.getSystemResourceAsStream("logo.txt");
-		if(logoFile != null) try
-		{
-			final BufferedReader reader = new BufferedReader(new InputStreamReader(logoFile));
-			for(String line; (line = reader.readLine()) != null;)
-			{
-				log.info(line);
-			}
-		}
-		catch(IOException e)
-		{
-			log.exception(e);
-		}
-		
-		// Bind all properties by name as a baseline way to access them
-		Names.bindProperties(binder(), _constValues);
-		
 		// Find BindingAnnotations to bind
-		for(String key : _constValues.keySet())
+		for(Object oKey : _constValues.keySet())
 		{
-			// Mask passwords
-			final String realValue = _constValues.get(key);
-			final String displayValue = key.toLowerCase().endsWith("password")
-				? realValue.replaceAll(".", "*")
-				: realValue;
-			String prefix = "    ";
-			boolean warn = false;
+			final String key = String.valueOf(oKey);
+			final String value = String.valueOf(_constValues.get(key));
 			
-			// Try to bind annotated constants
+			// Mask passwords
+			final String displayValue = key.toLowerCase().endsWith("password") ? "********" : value;
+			
 			try
 			{
 				// Find binding annotation
 				final Class<?> annotation = Class.forName(key);
-				if(annotation.getAnnotation(BindingAnnotation.class) != null)
-				{
-					final Class<? extends Annotation> bindingAnnotation = annotation.asSubclass(Annotation.class);
-					bindConstant().annotatedWith(bindingAnnotation).to(realValue);
-					prefix = "   @";
-				}
+				if(annotation.getAnnotation(BindingAnnotation.class) == null) throw new ClassNotFoundException();
+				
+				// Bind constant with binding annotation if available...
+				final Class<? extends Annotation> bindingAnnotation = annotation.asSubclass(Annotation.class);
+				bindConstant().annotatedWith(bindingAnnotation).to(value);
+				log.log(LogLevel.INFO, String.format("   @" + _FORMAT, key, displayValue));
 			}
 			catch(ClassNotFoundException e)
 			{
-				// If the key looks like it's meant to match a binding annotation, warn up front
-				for(String pkg : _PACKAGE_PREFIXES)
-				{
-					if(key.startsWith(pkg) || key.contains("." + pkg))
-					{
-						warn = true;
-						break;
-					}
-				}
+				// ...if not, bind named constant
+				bindConstant().annotatedWith(Names.named(key)).to(value);
+				log.log(LogLevel.INFO, String.format("    " + _FORMAT, key, displayValue));
 			}
-			
-			// Print the property value
-			final String propertyLog = String.format(prefix + "%-50s= %s", key, displayValue);
-			if(warn) log.warn(propertyLog);
-			else log.info(propertyLog);
 		}
 	}
 	
-	// Property prefixes considered to be intended as binding annotations
-	private static final List<String> _PACKAGE_PREFIXES = Arrays.asList("com.", "org.", "net.");
+	private static final String _FORMAT = "%-50s= %s";
 }
