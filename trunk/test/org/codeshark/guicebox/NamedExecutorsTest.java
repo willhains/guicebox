@@ -1,6 +1,6 @@
-package org.codeshark.guicebox;
+package org.guicebox;
 
-import static org.codeshark.guicebox.NamedExecutors.*;
+import static org.guicebox.NamedExecutors.*;
 import static org.junit.Assert.*;
 
 import java.util.concurrent.*;

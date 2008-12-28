@@ -1,9 +1,9 @@
-package org.codeshark.guicebox.failover;
+package org.guicebox.failover;
 
 import static org.easymock.EasyMock.*;
 
 import com.google.inject.*;
-import org.codeshark.guicebox.*;
+import org.guicebox.*;
 import org.easymock.*;
 import org.junit.*;
 

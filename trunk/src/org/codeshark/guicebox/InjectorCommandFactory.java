@@ -1,4 +1,4 @@
-package org.codeshark.guicebox;
+package org.guicebox;
 
 import com.google.inject.*;
 import java.lang.annotation.*;

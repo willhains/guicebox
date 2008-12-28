@@ -1,7 +1,7 @@
-package org.codeshark.guicebox.failover;
+package org.guicebox.failover;
 
 import java.util.logging.*;
-import org.codeshark.guicebox.*;
+import org.guicebox.*;
 
 /**
  * @author willhains

@@ -1,4 +1,4 @@
-package org.codeshark.guicebox.failover.udp;
+package org.guicebox.failover.udp;
 
 import static org.easymock.EasyMock.*;
 import static org.junit.Assert.*;
@@ -8,7 +8,7 @@ import java.io.*;
 import java.net.*;
 import java.net.InetAddress;
 import java.util.concurrent.*;
-import org.codeshark.guicebox.failover.*;
+import org.guicebox.failover.*;
 import org.easymock.*;
 import org.junit.*;
 

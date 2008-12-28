@@ -1,10 +1,10 @@
-package org.codeshark.guicebox.failover;
+package org.guicebox.failover;
 
-import static org.codeshark.guicebox.failover.NodeState.*;
+import static org.guicebox.failover.NodeState.*;
 import static org.easymock.EasyMock.*;
 import static org.junit.Assert.*;
 
-import org.codeshark.guicebox.*;
+import org.guicebox.*;
 import org.junit.*;
 
 /**

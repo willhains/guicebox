@@ -1,4 +1,4 @@
-package org.codeshark.guicebox;
+package org.guicebox;
 
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;

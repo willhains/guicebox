@@ -1,9 +1,9 @@
-package org.codeshark.guicebox.failover;
+package org.guicebox.failover;
 
 import static org.junit.Assert.*;
 
 import java.util.*;
-import org.codeshark.guicebox.*;
+import org.guicebox.*;
 import org.junit.*;
 
 /**

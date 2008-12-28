@@ -1,4 +1,4 @@
-package org.codeshark.guicebox;
+package org.guicebox;
 
 import static org.easymock.EasyMock.*;
 import static org.junit.Assert.*;
