@@ -7,18 +7,16 @@ import com.google.inject.*;
  * 
  * @author willhains
  */
-@ImplementedBy(Standalone.class)
-public interface Cluster
+@ImplementedBy(Standalone.class) public interface Cluster
 {
 	/**
 	 * Join the cluster. The cluster implementation takes over responsibility for starting/stopping the application, by
-	 * using the specified triggers. The implementation must tolerate calls to this method when already joined to or
-	 * joining the cluster.
+	 * calling to the specified application control object. The implementation must tolerate calls to this method when
+	 * already joined to or joining the cluster.
 	 * 
-	 * @param startTrigger a command to invoke that will start GuiceBox when the cluster deems the node ready.
-	 * @param stopTrigger a command to invoke that will stop GuiceBox when the cluster needs the node to sleep.
+	 * @param app control for starting/stopping the application.
 	 */
-	void join(Runnable startTrigger, Runnable stopTrigger);
+	void join(Application app);
 	
 	/**
 	 * Leaves the cluster. The cluster implementation relinquishes responsibility for starting/stopping the application.

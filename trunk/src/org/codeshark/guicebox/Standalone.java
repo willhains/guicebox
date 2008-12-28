@@ -8,14 +8,12 @@ package org.codeshark.guicebox;
  */
 public final class Standalone implements Cluster
 {
-	@Override
-	public void join(Runnable startTrigger, Runnable stopTrigger)
+	@Override public void join(Application app)
 	{
-		startTrigger.run();
+		app.start();
 	}
 	
-	@Override
-	public void leave()
+	@Override public void leave()
 	{
 		// No action required
 	}

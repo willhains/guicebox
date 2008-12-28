@@ -10,9 +10,7 @@ import java.lang.annotation.*;
  * 
  * @author willhains
  */
-@Retention(RUNTIME)
-@Target({ FIELD, METHOD })
-public @interface Kill
-{
-	
+@Retention(RUNTIME) @Target( { FIELD, METHOD }) public @interface Kill
+{	
+
 }
