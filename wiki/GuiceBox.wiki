@@ -21,10 +21,6 @@ GuiceBox manages your application's overall state, which can be either *STARTED*
 
 Another key feature of GuiceBox is HotFailover. You can run two (or more) instances of your application in an active-passive cluster. GuiceBox will automatically detect the failure of the primary node and start up one of the back-up nodes. This is done peer-to-peer with no single point of failure.
 
-= Logging =
-
-GuiceBox provides a slick API for logging that bridges to your favourite logging library. There is also a default logging implementation that ain't too shabby. See LoggingBridge for details.
-
 = Properties =
 
 GuiceBox makes it easy to bind large numbers of constants to Guice through the PropertiesModule and CommandLineModule.
