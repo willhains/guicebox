@@ -33,11 +33,13 @@ To start using GuiceBox, first create a class with a `main` method that will lau
 {{{
 public static void main(String[] args)
 {
-    final GuiceBox guicebox = GuiceBox.init(
+    final Injector injector = Guice.createInjector(
         new FailoverModule(), // hot failover
         new CommandLineModule(args), // command-line and properties files
         ...etc );
-    guicebox.start();
+    final GuiceBox guicebox = injector.getInstance(GuiceBox.class); // Initiates your app
+    guicebox.registerJMX(); // if you want to control GuiceBox via JMX
+    guicebox.start(); // starts everything bound by your modules that has @Start
 }
 }}}
 The arguments to `init()` are the same `Module`s you would provide to `Guice.createInjector()`. GuiceBox creates the injector internally and uses it for initialisation. `FailoverModule` and `CommandLineModule` are optional modules provided by GuiceBox.
