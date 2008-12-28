@@ -15,15 +15,13 @@ public class CommandLineModuleTest
 		return args.split("\\s");
 	}
 	
-	@Test
-	public void testSingleArgument() throws Exception
+	@Test public void testSingleArgument() throws Exception
 	{
 		final CommandLineModule module = new CommandLineModule(_split("-single TEST"));
 		assertEquals("TEST", module.getConstant("single"));
 	}
 	
-	@Test
-	public void testMultipleArguments() throws Exception
+	@Test public void testMultipleArguments() throws Exception
 	{
 		final CommandLineModule module = new CommandLineModule(_split("-one 1 -two 2 -three 3"));
 		assertEquals("1", module.getConstant("one"));
@@ -31,8 +29,7 @@ public class CommandLineModuleTest
 		assertEquals("3", module.getConstant("three"));
 	}
 	
-	@Test
-	public void testNoValueGiven() throws Exception
+	@Test public void testNoValueGiven() throws Exception
 	{
 		final CommandLineModule module = new CommandLineModule(_split("-one 1 -two 2 -three"));
 		assertEquals("1", module.getConstant("one"));
@@ -40,48 +37,29 @@ public class CommandLineModuleTest
 		assertEquals("true", module.getConstant("three"));
 	}
 	
-	@Retention(RUNTIME)
-	@Target({ FIELD, PARAMETER })
-	@BindingAnnotation
-	public @interface One
-	{
-	}
+	@Retention(RUNTIME) @Target( { FIELD, PARAMETER }) @BindingAnnotation public @interface One
+	{}
 	
-	@Retention(RUNTIME)
-	@Target({ FIELD, PARAMETER })
-	@BindingAnnotation
-	public @interface Two
-	{
-	}
+	@Retention(RUNTIME) @Target( { FIELD, PARAMETER }) @BindingAnnotation public @interface Two
+	{}
 	
-	@Retention(RUNTIME)
-	@Target({ FIELD, PARAMETER })
-	@BindingAnnotation
-	public @interface Three
-	{
-	}
+	@Retention(RUNTIME) @Target( { FIELD, PARAMETER }) @BindingAnnotation public @interface Three
+	{}
 	
 	private static final class Injectable
 	{
-		@Inject(optional = true)
-		@One
-		String one = "one";
+		@Inject(optional = true) @One String one = "one";
 		
-		@Inject(optional = true)
-		@Two
-		String two = "two";
+		@Inject(optional = true) @Two String two = "two";
 		
-		@Inject(optional = true)
-		@Three
-		String three = "three";
+		@Inject(optional = true) @Three String three = "three";
 	}
 	
-	@Test
-	public void testBinding() throws Exception
+	@Test public void testBinding() throws Exception
 	{
 		final Injector injector = Guice.createInjector(new CommandLineModule(_split( //
 		"-org.codeshark.guicebox.CommandLineModuleTest$One 1 "
-		    + "-org.codeshark.guicebox.CommandLineModuleTest$Three 3 ")));
+			+ "-org.codeshark.guicebox.CommandLineModuleTest$Three 3 ")));
 		final Injectable injected = injector.getInstance(Injectable.class);
 		
 		assertEquals("1", injected.one);
@@ -89,17 +67,8 @@ public class CommandLineModuleTest
 		assertEquals("3", injected.three);
 	}
 	
-	@Test
-	public void testNonSwitch() throws Exception
+	@Test(expected = IllegalArgumentException.class) public void testNonSwitch() throws Exception
 	{
-		try
-		{
-			new CommandLineModule(_split("-one 1 2 3"));
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch(IllegalArgumentException e)
-		{
-			assertEquals("unknown switch: '2'", e.getMessage());
-		}
+		new CommandLineModule(_split("-one 1 2 3"));
 	}
 }
