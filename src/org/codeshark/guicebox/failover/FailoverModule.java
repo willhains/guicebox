@@ -1,11 +1,11 @@
-package org.codeshark.guicebox.failover;
+package org.guicebox.failover;
 
 import com.google.inject.*;
 import java.net.*;
 import java.net.InetAddress;
 import java.security.*;
 import java.util.*;
-import org.codeshark.guicebox.*;
+import org.guicebox.*;
 
 /**
  * Binds {@link Failover} as the {@link Cluster} implementation.

@@ -1,4 +1,4 @@
-package org.codeshark.guicebox;
+package org.guicebox;
 
 /**
  * Interface to allow a {@link Cluster} to start & stop an application.

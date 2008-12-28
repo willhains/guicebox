@@ -1,4 +1,4 @@
-package org.codeshark.guicebox.failover;
+package org.guicebox.failover;
 
 /**
  * Generic exception indicating that an error occurred while attempting to send/receive a heartbeat.

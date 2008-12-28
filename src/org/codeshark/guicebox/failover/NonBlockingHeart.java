@@ -1,7 +1,7 @@
-package org.codeshark.guicebox.failover;
+package org.guicebox.failover;
 
 import static java.util.concurrent.TimeUnit.*;
-import static org.codeshark.guicebox.NamedExecutors.*;
+import static org.guicebox.NamedExecutors.*;
 
 import com.google.inject.*;
 import java.util.concurrent.*;

@@ -1,4 +1,4 @@
-package org.codeshark.guicebox;
+package org.guicebox;
 
 import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.*;
@@ -55,8 +55,8 @@ public class PropertiesModuleTest
 		final List<Reader> propFiles = Arrays
 			.<Reader> asList(
 				new StringReader("my.property=something"),
-				new StringReader("org.codeshark.guicebox.PropertiesModuleTest$BoundInt=42"),
-				new StringReader("org.codeshark.guicebox.PropertiesModuleTest$NonBindingAnnotation=org.codeshark.guicebox.PropertiesModuleTest$Side.RIGHT"));
+				new StringReader("org.guicebox.PropertiesModuleTest$BoundInt=42"),
+				new StringReader("org.guicebox.PropertiesModuleTest$NonBindingAnnotation=org.guicebox.PropertiesModuleTest$Side.RIGHT"));
 		final PropertiesModule module = new PropertiesModule("", propFiles);
 		final Injector injector = Guice.createInjector(module);
 		final ConstantInjected injected = injector.getInstance(ConstantInjected.class);

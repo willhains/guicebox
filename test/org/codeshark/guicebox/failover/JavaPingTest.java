@@ -1,4 +1,4 @@
-package org.codeshark.guicebox.failover;
+package org.guicebox.failover;
 
 import static java.util.concurrent.TimeUnit.*;
 import static org.easymock.EasyMock.*;

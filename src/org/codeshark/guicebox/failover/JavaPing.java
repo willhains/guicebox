@@ -1,4 +1,4 @@
-package org.codeshark.guicebox.failover;
+package org.guicebox.failover;
 
 import static java.util.concurrent.TimeUnit.*;
 
@@ -8,7 +8,7 @@ import java.net.*;
 import java.util.concurrent.*;
 import java.util.logging.*;
 import net.jcip.annotations.*;
-import org.codeshark.guicebox.*;
+import org.guicebox.*;
 
 /**
  * Utility for pinging a specified network address. The wire protocol is implemented by

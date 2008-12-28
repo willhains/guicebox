@@ -1,4 +1,4 @@
-package org.codeshark.guicebox.failover;
+package org.guicebox.failover;
 
 /**
  * Sends and receives heartbeats to advertise this node's presence and detect the presence of other nodes in the

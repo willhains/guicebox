@@ -1,4 +1,4 @@
-package org.codeshark.guicebox;
+package org.guicebox;
 
 /**
  * Generic exception to indicate an error encountered by GuiceBox.

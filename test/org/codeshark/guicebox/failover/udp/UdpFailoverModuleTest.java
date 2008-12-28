@@ -1,11 +1,11 @@
-package org.codeshark.guicebox.failover.udp;
+package org.guicebox.failover.udp;
 
 import static org.junit.Assert.*;
 
 import com.google.inject.*;
 import java.lang.annotation.*;
-import org.codeshark.guicebox.*;
-import org.codeshark.guicebox.failover.*;
+import org.guicebox.*;
+import org.guicebox.failover.*;
 import org.junit.*;
 
 /**

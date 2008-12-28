@@ -1,4 +1,4 @@
-package org.codeshark.guicebox;
+package org.guicebox;
 
 import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.*;

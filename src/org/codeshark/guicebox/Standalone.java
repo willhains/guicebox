@@ -1,4 +1,4 @@
-package org.codeshark.guicebox;
+package org.guicebox;
 
 /**
  * The default implementation of {@link Cluster}, implementing a stand-alone application that does not participate in a

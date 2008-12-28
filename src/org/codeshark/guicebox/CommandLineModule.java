@@ -1,4 +1,4 @@
-package org.codeshark.guicebox;
+package org.guicebox;
 
 /**
  * An extension of {@link PropertiesModule} that allows binding of constants from the command line via command-line

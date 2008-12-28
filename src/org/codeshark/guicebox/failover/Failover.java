@@ -1,8 +1,8 @@
-package org.codeshark.guicebox.failover;
+package org.guicebox.failover;
 
 import com.google.inject.*;
 import net.jcip.annotations.*;
-import org.codeshark.guicebox.*;
+import org.guicebox.*;
 
 /**
  * Implements a simple but effective active-passive failover strategy for high availability. There is a maximum of one

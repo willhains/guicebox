@@ -1,4 +1,4 @@
-package org.codeshark.guicebox.failover.udp;
+package org.guicebox.failover.udp;
 
 import com.google.inject.*;
 import java.io.*;
@@ -6,7 +6,7 @@ import java.net.*;
 import java.net.InetAddress;
 import java.util.concurrent.*;
 import net.jcip.annotations.*;
-import org.codeshark.guicebox.failover.*;
+import org.guicebox.failover.*;
 
 /**
  * Implements a UDP-based transport of heartbeats.

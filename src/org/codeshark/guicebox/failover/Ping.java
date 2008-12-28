@@ -1,4 +1,4 @@
-package org.codeshark.guicebox.failover;
+package org.guicebox.failover;
 
 /**
  * Confirms availability of a specified network address.

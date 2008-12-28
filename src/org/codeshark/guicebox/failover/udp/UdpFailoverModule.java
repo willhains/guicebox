@@ -1,7 +1,7 @@
-package org.codeshark.guicebox.failover.udp;
+package org.guicebox.failover.udp;
 
 import com.google.inject.*;
-import org.codeshark.guicebox.failover.*;
+import org.guicebox.failover.*;
 
 /**
  * Binds {@link UdpTransport} as the {@link Transport} implementation.
