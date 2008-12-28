@@ -19,11 +19,11 @@ Note that you don't need to wire PropertiesModule if you use CommandLineModule. 
 
 Properties can then be supplied at the command line using the following syntax:
 {{{
-java MyMainClass -org.codeshark.guicebox.Param1 base1 -my.boolean.prop -my.integer.prop 5
+java MyMainClass -org.guicebox.Param1 base1 -my.boolean.prop -my.integer.prop 5
 }}}
 The properties generated from the command line above would be:
 {{{
-   @org.codeshark.guicebox.Param1                     = base1
+   @org.guicebox.Param1                               = base1
     my.boolean.prop                                   = true
     my.integer.prop                                   = 5
 }}}

@@ -69,9 +69,9 @@ Another important point to note is that you can have as many properties files as
 There are two types of entries (other than comments) in properties files: those that will be bound to binding annotations (preferred), and those that will be bound to `@Named` annotations. They look like this:
 {{{
 # Used in sample application TestMain
-org.codeshark.guicebox.Param1=base1
-org.codeshark.guicebox.Param2=base2
-org.codeshark.guicebox.Parm3=base3
+org.guicebox.Param1=base1
+org.guicebox.Param2=base2
+org.guicebox.Parm3=base3
 non.annotation.property=Not an annotation
 }}}
 Note that the fully-qualified name of the binding annotation is required to bind a constant to Guice. Anything that doesn't match the FQN of a binding annotation will just be loaded into the `@Named` namespace. If you make a typo with the FQN, PropertiesModule will tell you when you start the app (see below).
@@ -80,17 +80,17 @@ Note that the fully-qualified name of the binding annotation is required to bind
 
 When you start your application, PropertiesModule will [LoggingBridge log] the values of all your properties, so you can easily check how it has interpreted your properties files. The output looks like this:
 {{{
-   @org.codeshark.guicebox.ha.GroupAddress            = 239.192.169.151
-   @org.codeshark.guicebox.ha.Environment             = DEV
+   @org.guicebox.ha.GroupAddress                      = 239.192.169.151
+   @org.guicebox.ha.Environment                       = DEV
     my.secret.password                                = *****
-   @org.codeshark.guicebox.LogTime                    = HH:mm:ss.SSS
-   @org.codeshark.guicebox.ha.WellKnownAddress        = 192.168.1.100
+   @org.guicebox.LogTime                              = HH:mm:ss.SSS
+   @org.guicebox.ha.WellKnownAddress                  = 192.168.1.100
     non.annotation.property                           = Not an annotation
-   @org.codeshark.guicebox.LogThread                  = true
-    org.codeshark.guicebox.Parm3                      = base3
-   @org.codeshark.guicebox.LogSource                  = true
-   @org.codeshark.guicebox.Param2                     = username2
-   @org.codeshark.guicebox.Param1                     = username1
+   @org.guicebox.LogThread                            = true
+    org.guicebox.Parm3                                = base3
+   @org.guicebox.LogSource                            = true
+   @org.guicebox.Param2                               = username2
+   @org.guicebox.Param1                               = username1
 }}}
 Notice that properties that have been bound to annotations include an `@` symbol on the left. Here we can see the typo I made in `Param3` has caused this to not be bound to the annotation properly. This line is output to `stderr` so in most IDEs this will also show in red.
 
