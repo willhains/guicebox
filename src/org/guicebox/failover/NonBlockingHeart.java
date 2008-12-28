@@ -124,7 +124,7 @@ import net.jcip.annotations.*;
 				heartbeatListener.onHeartbeatTimeout();
 			}
 		};
-		_listenTask = _listen.scheduleWithFixedDelay(listen, 0, 0, MILLISECONDS);
+		_listenTask = _listen.scheduleWithFixedDelay(listen, 0, 1, MILLISECONDS);
 	}
 	
 	public synchronized void beat()

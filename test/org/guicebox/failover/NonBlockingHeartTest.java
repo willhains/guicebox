@@ -71,7 +71,7 @@ import org.junit.*;
 		// Should schedule a listen command
 		final ScheduledFuture lstnTask = createMock(ScheduledFuture.class);
 		final Capture<Runnable> command = new Capture<Runnable>();
-		expect(_listenThread.scheduleWithFixedDelay(capture(command), eq(0L), eq(0L), eq(MILLISECONDS))) //
+		expect(_listenThread.scheduleWithFixedDelay(capture(command), eq(0L), eq(1L), eq(MILLISECONDS))) //
 			.andReturn(lstnTask);
 		
 		// Should try to receive heartbeats - succeed 2 times, timeout 10 times, fail 8 times
@@ -151,7 +151,7 @@ import org.junit.*;
 		final Capture<Runnable> lstnCommand = new Capture<Runnable>();
 		expect(_beatThread.scheduleAtFixedRate(capture(beatCommand), eq(0L), eq((long)_interval), eq(MILLISECONDS))) //
 			.andReturn(beatTask);
-		expect(_listenThread.scheduleWithFixedDelay(capture(lstnCommand), eq(0L), eq(0L), eq(MILLISECONDS))) //
+		expect(_listenThread.scheduleWithFixedDelay(capture(lstnCommand), eq(0L), eq(1L), eq(MILLISECONDS))) //
 			.andReturn(lstnTask);
 		
 		// Should shut down the schedulers and cancel the beat & listen commands
