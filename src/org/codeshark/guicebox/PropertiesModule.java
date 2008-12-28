@@ -5,6 +5,7 @@ import com.google.inject.name.*;
 import java.io.*;
 import java.lang.annotation.*;
 import java.util.*;
+import java.util.logging.*;
 
 /**
  * Binds both explicit {@link BindingAnnotation}s and {@link Named} annotations to constant values supplied in the
@@ -24,9 +25,11 @@ import java.util.*;
  */
 public class PropertiesModule extends AbstractModule
 {
+	private final Logger _log;
+	
 	public PropertiesModule()
 	{
-		this(Log.forClass().getLogger(), _loadLogHeader(), _loadPropertiesFiles());
+		this(_loadLogHeader(), _loadPropertiesFiles());
 	}
 	
 	private static String _loadLogHeader()
@@ -72,20 +75,17 @@ public class PropertiesModule extends AbstractModule
 		return new BufferedReader(new FileReader(file));
 	}
 	
-	private final Logger log;
-	
 	// Maps constant names to their values
 	private final Properties _constValues = new Properties();
 	
 	/**
 	 * Should be called only from unit tests.
 	 */
-	PropertiesModule(Logger logger, String header, List<Reader> propertiesFiles)
+	PropertiesModule(String header, List<Reader> propertiesFiles)
 	{
-		log = logger;
-		
 		// Print the log header
-		if(header != null && header.trim().length() > 0) log.log(LogLevel.INFO, header);
+		_log = Logger.getLogger(PropertiesModule.class.getName());
+		if(header != null && header.trim().length() > 0) _log.info(header);
 		
 		// Load properties files from the environment
 		for(Reader reader : propertiesFiles)
@@ -96,7 +96,7 @@ public class PropertiesModule extends AbstractModule
 			}
 			catch(IOException e)
 			{
-				log.log(LogLevel.ERROR, "unable to load properties: " + e);
+				_log.warning("unable to load properties: " + e);
 			}
 		}
 	}
@@ -124,10 +124,10 @@ public class PropertiesModule extends AbstractModule
 	/**
 	 * Loads the collected constant values into Guice.
 	 */
-	@Override
-	protected final void configure()
+	@Override protected final void configure()
 	{
 		// Find BindingAnnotations to bind
+		final StringBuilder properties = new StringBuilder(System.getProperty("line.separator"));
 		for(Object oKey : _constValues.keySet())
 		{
 			final String key = String.valueOf(oKey);
@@ -145,16 +145,17 @@ public class PropertiesModule extends AbstractModule
 				// Bind constant with binding annotation if available...
 				final Class<? extends Annotation> bindingAnnotation = annotation.asSubclass(Annotation.class);
 				bindConstant().annotatedWith(bindingAnnotation).to(value);
-				log.log(LogLevel.INFO, String.format("   @" + _FORMAT, key, displayValue));
+				properties.append(String.format("   @" + _FORMAT, key, displayValue));
 			}
 			catch(ClassNotFoundException e)
 			{
 				// ...if not, bind named constant
 				bindConstant().annotatedWith(Names.named(key)).to(value);
-				log.log(LogLevel.INFO, String.format("    " + _FORMAT, key, displayValue));
+				properties.append(String.format("    " + _FORMAT, key, displayValue));
 			}
 		}
+		_log.info(properties.toString());
 	}
 	
-	private static final String _FORMAT = "%-50s= %s";
+	private static final String _FORMAT = "%-60s= %s%n";
 }
