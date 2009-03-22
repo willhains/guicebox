@@ -24,7 +24,7 @@ import org.guicebox.*;
 	private final InetAddress _wka;
 	
 	// How long to wait between each ping
-	private volatile int _pingInterval = 1500;
+	private volatile int _pingInterval = 1000;
 	
 	// How many multiples of the ping interval to wait before timing out
 	private volatile int _pingTolerance = 3;
