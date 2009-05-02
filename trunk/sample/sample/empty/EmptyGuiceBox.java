@@ -1,6 +1,7 @@
 package sample.empty;
 
 import com.google.inject.*;
+import javax.management.*;
 import org.guicebox.*;
 import org.guicebox.failover.*;
 import org.guicebox.failover.udp.*;
@@ -13,10 +14,11 @@ import org.guicebox.failover.udp.*;
  */
 public class EmptyGuiceBox
 {
-	public static void main(String[] args)
+	public static void main(String[] args) throws JMException
 	{
 		final Injector injector = Guice.createInjector(new CommandLineModule(), new UdpFailoverModule("sample.empty"));
 		final GuiceBox guicebox = injector.getInstance(GuiceBox.class);
+		guicebox.registerJMX();
 		guicebox.start();
 	}
 }
