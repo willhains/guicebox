@@ -84,12 +84,9 @@ When you start your application, PropertiesModule will [LoggingBridge log] the v
    @org.guicebox.ha.GroupAddress                      = 239.192.169.151
    @org.guicebox.ha.Environment                       = DEV
     my.secret.password                                = *****
-   @org.guicebox.LogTime                              = HH:mm:ss.SSS
    @org.guicebox.ha.WellKnownAddress                  = 192.168.1.100
     non.annotation.property                           = Not an annotation
-   @org.guicebox.LogThread                            = true
     org.guicebox.Parm3                                = base3
-   @org.guicebox.LogSource                            = true
    @org.guicebox.Param2                               = username2
    @org.guicebox.Param1                               = username1
 }}}
