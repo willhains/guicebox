@@ -91,4 +91,4 @@ Finally, it's time to start adding `@Start`, `@Stop` and `@Kill` annotations to 
 
 If you want, you can create a custom header for your log output. Just create a file called `loghead.txt` and put it in the working directory of your application. The contents of the file will be printed at the top of your logs.
 
-The instructions above cover the bare minimum required to get started with GuiceBox in your application. There are several other configuration options available, which have reasonable default values if you don't specify them. To find out how you can tweak GuiceBox further, see the [http://code.google.com/p/guicebox/w/list Wiki] and [http://code.google.com/p/guicebox/javadoc JavaDocs].
+The instructions above cover the bare minimum required to get started with GuiceBox in your application. There are several other configuration options available, which have reasonable default values if you don't specify them. To find out how you can tweak GuiceBox further, see the [http://code.google.com/p/guicebox/w/list Wiki] and [http://guicebox.googlecode.com/svn/trunk/javadoc/index.html JavaDocs].
