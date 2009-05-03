@@ -28,20 +28,21 @@ The intention of `@Start` and `@Stop` in GuiceBox is to separate your applicatio
 
 Failover depends on cleanly separated initialisation and start-up code. If you are doing work before `@Start`, *your standby nodes will do it too*.
 
-== Step 2: Wire `FailoverModule` ==
+== Step 2: Wire `UdpFailoverModule` ==
 
-Just add `FailoverModule` to the `GuiceBox.init()` call in your main class:
+Just add `UdpFailoverModule` to the `GuiceBox.init()` call in your main class:
 {{{
 public static void main(String[] args)
 {
-    final GuiceBox guicebox = GuiceBox.init(
-        new FailoverModule("MyApp"), // hot failover
+    final Injector injector = Guice.createInjector(
         new CommandLineModule(args), // command-line and properties files
+        new UdpFailoverModule("MyApp"), // hot failover
         ...etc );
-    guicebox.start();
+    final GuiceBox guicebox = injector.getInstance(GuiceBox.class); // Initialises your app
+    guicebox.start(); // starts everything bound by your modules that has @Start
 }
 }}}
-_Note: `"MyApp"` is the name of your application. It is used by the nodes of the same cluster to recognise one other._
+_Note: `"MyApp"` is the name of your application. It is used by the nodes of the same cluster to recognise one other.  This allows multiple GuiceBox applications to coexist on the same network._
 
 == Step 3: Configuration ==
 
