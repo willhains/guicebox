@@ -78,7 +78,7 @@ import org.guicebox.*;
 		{
 			public void run()
 			{
-				for(int failures = 0; failures < _pingTolerance; failures++)
+				for(int failures = 1; failures <= _pingTolerance; failures++)
 				{
 					// Abort if interrupted
 					if(Thread.currentThread().isInterrupted())
