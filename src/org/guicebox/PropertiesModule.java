@@ -25,6 +25,23 @@ import java.util.logging.*;
  */
 public class PropertiesModule extends AbstractModule
 {
+	/*
+	 * Read the Java Logging configuration from properties/logging.properties rather than requiring a parameter to be
+	 * passed to the JVM. However, if a JVM parameter has been supplied, this will not override it.
+	 */
+	static
+	{
+		if(System.getProperty("java.util.logging.config.file") == null) try
+		{
+			System.setProperty("java.util.logging.config.file", "./properties/logging.properties");
+			LogManager.getLogManager().readConfiguration();
+		}
+		catch(Exception e)
+		{
+			Logger.getLogger(PropertiesModule.class.getName()).log(Level.WARNING, "Could not load logger config", e);
+		}
+	}
+	
 	private final Logger _log;
 	
 	public PropertiesModule()
