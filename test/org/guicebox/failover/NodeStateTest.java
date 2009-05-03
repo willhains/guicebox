@@ -1,7 +1,7 @@
 package org.guicebox.failover;
 
-import static org.guicebox.failover.NodeState.*;
 import static org.easymock.EasyMock.*;
+import static org.guicebox.failover.NodeState.*;
 import static org.junit.Assert.*;
 
 import org.guicebox.*;

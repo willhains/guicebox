@@ -58,8 +58,7 @@ public class CommandLineModuleTest
 	@Test public void testBinding() throws Exception
 	{
 		final Injector injector = Guice.createInjector(new CommandLineModule(_split( //
-		"-org.guicebox.CommandLineModuleTest$One 1 "
-			+ "-org.guicebox.CommandLineModuleTest$Three 3 ")));
+		"-org.guicebox.CommandLineModuleTest$One 1 -org.guicebox.CommandLineModuleTest$Three 3 ")));
 		final Injectable injected = injector.getInstance(Injectable.class);
 		
 		assertEquals("1", injected.one);

@@ -1,4 +1,4 @@
-package org.guicebox.failover;
+package org.guicebox.failover.udp;
 
 import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.*;
