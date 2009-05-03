@@ -52,27 +52,27 @@ At a minimum, you need to configure the following:
 These values must be bound in Guice as constants. The easiest way to do that is either PropertiesModule or CommandLineModule, with the following (sample) in `./properties/username/failover.properties`:
 {{{
 # failover.properties
-org.guicebox.ha.WellKnownAddress=192.168.1.100
-org.guicebox.ha.GroupAddress=239.192.169.151
+org.guicebox.failover.WellKnownAddress=192.168.1.100
+org.guicebox.failover.udp.GroupAddress=239.192.169.151
 }}}
 
 === Optional Configuration ===
 There are several optional configuration options available. Here they are, with their default values:
 {{{
 # Source and Destination ports for multicast heartbeats
-org.guicebox.ha.SourcePort=7979
-org.guicebox.ha.DestinationPort=9797
+org.guicebox.failover.udp.SourcePort=7979
+org.guicebox.failover.udp.DestinationPort=9797
 
 # Number of router hops allowed for heartbeats
-org.guicebox.ha.TimeToLive=16
+org.guicebox.failover.udp.TimeToLive=16
 
 # Interval between heartbeats (seconds or milliseconds) and number permissible to miss
-org.guicebox.ha.HeartbeatInterval=1000
-org.guicebox.ha.HeartbeatTolerance=5
+org.guicebox.failover.HeartbeatInterval=1000
+org.guicebox.failover.HeartbeatTolerance=5
 
 # Interval between pings (seconds or milliseconds) and number permissible to miss
-org.guicebox.ha.PingInterval=1500
-org.guicebox.ha.PingTolerance=3
+org.guicebox.failover.PingInterval=1500
+org.guicebox.failover.PingTolerance=3
 }}}
 
 = Node States vs GuiceBox States =

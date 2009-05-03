@@ -14,7 +14,7 @@ Firstly, you'll need to wire a `PropertiesModule` instance to GuiceBox like this
 final GuiceBox guicebox = GuiceBox.init(new PropertiesModule());
 }}}
 This will set up GuiceBox to automatically detect `.properties` files in your environment.
-
+ú
 == Create Binding Annoations ==
 Secondly, you'll want to create some binding annotations for your constants. There are two patterns for this: required, and optional.
 
@@ -81,10 +81,10 @@ Note that the fully-qualified name of the binding annotation is required to bind
 
 When you start your application, PropertiesModule will [LoggingBridge log] the values of all your properties, so you can easily check how it has interpreted your properties files. The output looks like this:
 {{{
-   @org.guicebox.ha.GroupAddress                      = 239.192.169.151
-   @org.guicebox.ha.Environment                       = DEV
+   @org.guicebox.failover.udp.GroupAddress                      = 239.192.169.151
+   @org.guicebox.failover.Environment                       = DEV
     my.secret.password                                = *****
-   @org.guicebox.ha.WellKnownAddress                  = 192.168.1.100
+   @org.guicebox.failover.WellKnownAddress                  = 192.168.1.100
     non.annotation.property                           = Not an annotation
     org.guicebox.Parm3                                = base3
    @org.guicebox.Param2                               = username2

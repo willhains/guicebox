@@ -3,8 +3,8 @@ package org.guicebox.failover;
 import static org.easymock.EasyMock.*;
 
 import com.google.inject.*;
-import org.guicebox.*;
 import org.easymock.*;
+import org.guicebox.*;
 import org.junit.*;
 
 /**
