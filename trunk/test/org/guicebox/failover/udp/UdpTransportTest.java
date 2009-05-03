@@ -8,8 +8,8 @@ import java.io.*;
 import java.net.*;
 import java.net.InetAddress;
 import java.util.concurrent.*;
-import org.guicebox.failover.*;
 import org.easymock.*;
+import org.guicebox.failover.*;
 import org.junit.*;
 
 /**
@@ -53,7 +53,7 @@ import org.junit.*;
 		_socket.receive(capture(_msg));
 		expectLastCall().andAnswer(new IAnswer()
 		{
-			@Override public Object answer() throws Throwable
+			public Object answer() throws Throwable
 			{
 				final DatagramPacket packet = UdpTransport.createPacket(_peerPulse.get(), groupAddress, _destPort);
 				final DatagramPacket msg = _msg.getValue();
@@ -82,7 +82,7 @@ import org.junit.*;
 		_socket.receive(capture(_msg));
 		expectLastCall().andAnswer(new IAnswer()
 		{
-			@Override public Object answer() throws Throwable
+			public Object answer() throws Throwable
 			{
 				Thread.sleep(_timeout + 1);
 				throw new SocketTimeoutException();
@@ -149,7 +149,7 @@ import org.junit.*;
 		_socket.receive(capture(_msg));
 		expectLastCall().andAnswer(new IAnswer()
 		{
-			@Override public Object answer() throws Throwable
+			public Object answer() throws Throwable
 			{
 				Thread.sleep(1);
 				final DatagramPacket packet = UdpTransport.createPacket(_pulse.get(), groupAddress, _destPort);
@@ -189,7 +189,7 @@ import org.junit.*;
 		_socket.receive(capture(_msg));
 		expectLastCall().andAnswer(new IAnswer()
 		{
-			@Override public Object answer() throws Throwable
+			public Object answer() throws Throwable
 			{
 				Thread.sleep(1);
 				final Heartbeat hb = new Heartbeat("AnotherCluster", "TEST", _peer);
@@ -230,7 +230,7 @@ import org.junit.*;
 		_socket.receive(capture(_msg));
 		expectLastCall().andAnswer(new IAnswer()
 		{
-			@Override public Object answer() throws Throwable
+			public Object answer() throws Throwable
 			{
 				Thread.sleep(1);
 				final Object foreignObject = "I am not a heartbeat";
@@ -357,7 +357,7 @@ import org.junit.*;
 		_socket.receive(capture(_msg));
 		expectLastCall().andAnswer(new IAnswer()
 		{
-			@Override public Object answer() throws Throwable
+			public Object answer() throws Throwable
 			{
 				final DatagramPacket packet = UdpTransport.createPacket(_peerPulse.get(), groupAddress, _destPort);
 				final DatagramPacket msg = _msg.getValue();

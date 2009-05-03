@@ -13,23 +13,28 @@ import org.junit.*;
 
 public class PropertiesModuleTest
 {
+	private InputStream _stream(String input)
+	{
+		return new ByteArrayInputStream(input.getBytes());
+	}
+	
 	@Test public void logHeader()
 	{
-		new PropertiesModule("**** HEADER ****", Collections.<Reader> emptyList());
+		new PropertiesModule("**** HEADER ****", Collections.<InputStream> emptyList());
 	}
 	
 	@Test public void basicProperty()
 	{
-		final List<Reader> propFiles = Arrays.<Reader> asList(new StringReader("hello=world"));
+		final List<InputStream> propFiles = Arrays.<InputStream> asList(_stream("hello=world"));
 		assertEquals("world", new PropertiesModule(null, propFiles).getConstant("hello"));
 	}
 	
 	@Test public void overrideProperty()
 	{
-		final PropertiesModule module = new PropertiesModule("", Arrays.<Reader> asList(
-			new StringReader("prop1=base1\nprop2=base2\nprop3=base3"),
-			new StringReader("prop2=user2"),
-			new StringReader("prop3=user3\nprop4=user4")));
+		final PropertiesModule module = new PropertiesModule("", Arrays.<InputStream> asList(
+			_stream("prop1=base1\nprop2=base2\nprop3=base3"),
+			_stream("prop2=user2"),
+			_stream("prop3=user3\nprop4=user4")));
 		module.setConstant("prop3", "set3");
 		assertEquals("base1", module.getConstant("prop1"));
 		assertEquals("user2", module.getConstant("prop2"));
@@ -52,11 +57,11 @@ public class PropertiesModuleTest
 	
 	@Test public void binding()
 	{
-		final List<Reader> propFiles = Arrays
-			.<Reader> asList(
-				new StringReader("my.property=something"),
-				new StringReader("org.guicebox.PropertiesModuleTest$BoundInt=42"),
-				new StringReader("org.guicebox.PropertiesModuleTest$NonBindingAnnotation=org.guicebox.PropertiesModuleTest$Side.RIGHT"));
+		final List<InputStream> propFiles = Arrays
+			.<InputStream> asList(
+				_stream("my.property=something"),
+				_stream("org.guicebox.PropertiesModuleTest$BoundInt=42"),
+				_stream("org.guicebox.PropertiesModuleTest$NonBindingAnnotation=org.guicebox.PropertiesModuleTest$Side.RIGHT"));
 		final PropertiesModule module = new PropertiesModule("", propFiles);
 		final Injector injector = Guice.createInjector(module);
 		final ConstantInjected injected = injector.getInstance(ConstantInjected.class);
@@ -68,13 +73,13 @@ public class PropertiesModuleTest
 	@Test public void dodgyPropertiesFile()
 	{
 		final IOException exception = new IOException();
-		new PropertiesModule("", Arrays.<Reader> asList(new Reader()
+		new PropertiesModule("", Arrays.<InputStream> asList(new InputStream()
 		{
 			@Override public void close() throws IOException
 			{
 			}
 			
-			@Override public int read(char[] cbuf, int off, int len) throws IOException
+			@Override public int read() throws IOException
 			{
 				throw exception;
 			}

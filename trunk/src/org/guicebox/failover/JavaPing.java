@@ -76,7 +76,7 @@ import org.guicebox.*;
 		// Create and schedule the ping task
 		final Runnable command = new Runnable()
 		{
-			@Override public void run()
+			public void run()
 			{
 				for(int failures = 0; failures < _pingTolerance; failures++)
 				{
@@ -168,12 +168,12 @@ final class InetAddressAdapter implements InetAddress
 		_inner = java.net.InetAddress.getByName(host);
 	}
 	
-	@Override public String getHostAddress()
+	public String getHostAddress()
 	{
 		return _inner.getHostAddress();
 	}
 	
-	@Override public boolean isReachable(int timeout) throws IOException
+	public boolean isReachable(int timeout) throws IOException
 	{
 		return _inner.isReachable(timeout);
 	}

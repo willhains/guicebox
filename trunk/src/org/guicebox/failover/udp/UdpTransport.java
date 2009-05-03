@@ -51,7 +51,7 @@ import org.guicebox.failover.*;
 		_ttl = ttl;
 	}
 	
-	@Override public synchronized Heartbeat receive(Heartbeat ownHeartbeat, int timeout) throws TransportException,
+	public synchronized Heartbeat receive(Heartbeat ownHeartbeat, int timeout) throws TransportException,
 		TimeoutException
 	{
 		// Loop until timeout expires
@@ -109,7 +109,7 @@ import org.guicebox.failover.*;
 		throw new TimeoutException();
 	}
 	
-	@Override public synchronized void send(Heartbeat hb) throws TransportException
+	public synchronized void send(Heartbeat hb) throws TransportException
 	{
 		try
 		{
@@ -144,7 +144,7 @@ import org.guicebox.failover.*;
 		return (Heartbeat)obj;
 	}
 	
-	@Override public synchronized void disconnect()
+	public synchronized void disconnect()
 	{
 		if(_receiveSocket != null) _receiveSocket.close();
 		if(_sendSocket != null) _sendSocket.close();
@@ -198,42 +198,42 @@ final class MulticastSocketAdapter implements MulticastSocket
 		_inner = new java.net.MulticastSocket(port);
 	}
 	
-	@Override public void close()
+	public void close()
 	{
 		_inner.close();
 	}
 	
-	@Override public int getPort()
+	public int getPort()
 	{
 		return _inner.getPort();
 	}
 	
-	@Override public boolean isClosed()
+	public boolean isClosed()
 	{
 		return _inner.isClosed();
 	}
 	
-	@Override public void receive(DatagramPacket p) throws IOException
+	public void receive(DatagramPacket p) throws IOException
 	{
 		_inner.receive(p);
 	}
 	
-	@Override public void send(DatagramPacket p) throws IOException
+	public void send(DatagramPacket p) throws IOException
 	{
 		_inner.send(p);
 	}
 	
-	@Override public void setSoTimeout(int timeout) throws SocketException
+	public void setSoTimeout(int timeout) throws SocketException
 	{
 		_inner.setSoTimeout(timeout);
 	}
 	
-	@Override public void setTimeToLive(int ttl) throws IOException
+	public void setTimeToLive(int ttl) throws IOException
 	{
 		_inner.setTimeToLive(ttl);
 	}
 	
-	@Override public void joinGroup(InetAddress address) throws IOException
+	public void joinGroup(InetAddress address) throws IOException
 	{
 		_inner.joinGroup(address);
 	}

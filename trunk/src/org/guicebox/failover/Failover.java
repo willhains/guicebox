@@ -64,7 +64,7 @@ import org.guicebox.*;
 		_pingFactory = pingFactory;
 	}
 	
-	@Override public synchronized void join(final Application app)
+	public synchronized void join(final Application app)
 	{
 		// Tolerate multiple calls to this method
 		if(_state != null) return;
@@ -77,7 +77,7 @@ import org.guicebox.*;
 		// Start checking for network connectivity
 		_ping.start(new PingListener()
 		{
-			@Override public void onPing()
+			public void onPing()
 			{
 				synchronized(Failover.this)
 				{
@@ -85,7 +85,7 @@ import org.guicebox.*;
 				}
 			}
 			
-			@Override public void onPingTimeout()
+			public void onPingTimeout()
 			{
 				synchronized(Failover.this)
 				{
@@ -97,7 +97,7 @@ import org.guicebox.*;
 		// Start listening for heartbeats from the primary node
 		_heart.listen(new HeartbeatListener()
 		{
-			@Override public void onHeartbeat(final Heartbeat hb)
+			public void onHeartbeat(final Heartbeat hb)
 			{
 				synchronized(Failover.this)
 				{
@@ -105,7 +105,7 @@ import org.guicebox.*;
 				}
 			}
 			
-			@Override public void onHeartbeatTimeout()
+			public void onHeartbeatTimeout()
 			{
 				synchronized(Failover.this)
 				{
@@ -115,7 +115,7 @@ import org.guicebox.*;
 		});
 	}
 	
-	@Override public synchronized void leave()
+	public synchronized void leave()
 	{
 		// Tolerate multiple calls to this method
 		if(_state == null) return;

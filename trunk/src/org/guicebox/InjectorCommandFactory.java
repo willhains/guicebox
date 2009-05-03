@@ -63,7 +63,7 @@ public final class InjectorCommandFactory implements CommandFactory
 		}
 	}
 	
-	@Override public Iterable<Callable<?>> getCommands(Class<? extends Annotation> transition)
+	public Iterable<Callable<?>> getCommands(Class<? extends Annotation> transition)
 	{
 		return _commands.get(transition);
 	}

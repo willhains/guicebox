@@ -49,9 +49,9 @@ public class PropertiesModule extends AbstractModule
 		return header.toString();
 	}
 	
-	private static List<Reader> _loadPropertiesFiles()
+	private static List<InputStream> _loadPropertiesFiles()
 	{
-		final List<Reader> propFiles = new ArrayList<Reader>();
+		final List<InputStream> propFiles = new ArrayList<InputStream>();
 		for(String path : Arrays.asList("properties/", "properties/" + System.getProperty("user.name") + "/"))
 		{
 			final File propDir = new File(path);
@@ -59,7 +59,10 @@ public class PropertiesModule extends AbstractModule
 			{
 				if(propDir.exists() && propDir.isDirectory()) for(File file : propDir.listFiles())
 				{
-					if(file.getName().endsWith(".properties")) propFiles.add(_read(file));
+					if(file.getName().endsWith(".properties"))
+					{
+						propFiles.add(new BufferedInputStream(new FileInputStream(file)));
+					}
 				}
 			}
 			catch(FileNotFoundException e)
@@ -81,18 +84,18 @@ public class PropertiesModule extends AbstractModule
 	/**
 	 * Should be called only from unit tests.
 	 */
-	PropertiesModule(String header, List<Reader> propertiesFiles)
+	PropertiesModule(String header, List<InputStream> propertiesFiles)
 	{
 		// Print the log header
 		_log = Logger.getLogger(PropertiesModule.class.getName());
 		if(header != null && header.trim().length() > 0) _log.info(header);
 		
 		// Load properties files from the environment
-		for(Reader reader : propertiesFiles)
+		for(InputStream propFile : propertiesFiles)
 		{
 			try
 			{
-				_constValues.load(reader);
+				_constValues.load(propFile);
 			}
 			catch(IOException e)
 			{

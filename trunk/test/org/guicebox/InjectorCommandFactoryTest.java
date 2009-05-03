@@ -74,7 +74,7 @@ interface StartMethod
 
 class StartMethodImpl implements StartMethod
 {
-	@Start @Override public void startMe()
+	@Start public void startMe()
 	{
 	}
 }
@@ -88,11 +88,11 @@ interface StopKillMethods
 
 class StopKillMethodsImpl implements StopKillMethods
 {
-	@Override public void stopMe()
+	public void stopMe()
 	{
 	}
 	
-	@Override public void killMe()
+	public void killMe()
 	{
 	}
 }
