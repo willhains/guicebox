@@ -29,7 +29,7 @@ GuiceBox makes it easy to bind large numbers of constants to Guice through the P
 
 If you haven't already, [http://code.google.com/p/google-guice go and learn about Guice]. Everything on this site assumes you have! :-)
 
-The below is a quick overview of what's involved in using GuiceBox in your application. *For a step-by-step guide on getting started with GuiceBox, see GettingStarted.*
+The below is a quick overview of what's involved in using GuiceBox in your application. *For a step-by-step guide on getting started, see GettingStarted.*
 
 To start using GuiceBox, first create a class with a `main` method that will launch your application. The `main` method should look something like this:
 {{{
