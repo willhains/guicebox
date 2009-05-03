@@ -16,17 +16,19 @@ final GuiceBox guicebox = GuiceBox.init(new PropertiesModule());
 This will set up GuiceBox to automatically detect `.properties` files in your environment.
 
 == Create Binding Annoations ==
-Secondly, you'll want to create some binding annotations for your constants. There are two patterns for this - required, and optional.
+Secondly, you'll want to create some binding annotations for your constants. There are two patterns for this: required, and optional.
 
 === Optional Properties ===
 A property is optional when you can provide a _reasonable default_ value, reducing the burden on your API users. To do this, use `@Inject(optional = true)`, like this:
 {{{
 // The multicast port for sending heartbeats
-@Inject(optional = true)
-@DestinationPort
 private int _destPort = 9797;
+@Inject(optional = true) final void setDestinationPort(@DestinationPort int port)
+{
+	_destPort = port;
+}
 }}}
-This way, your API users can set the value if they want, but if they don't it will use the default value you have provided.
+This way, your API users can set the value if they want, but if they don't it will use the default value you have provided. (Be sure to provide appropriate concurrency controls if necessary.)
 
 === Required Properties ===
 A property is required if it is not useful or practical to provide a default value. To do this, use a `final` field and inject into the constructor, like this:
@@ -34,10 +36,9 @@ A property is required if it is not useful or practical to provide a default val
 // The multicast address for heartbeats
 private final InetAddress _groupAddress;
 
-@Inject
-private Heart(@GroupAddress String groupAddress) throws UnknownHostException
+@Inject UdpTransport(@GroupAddress String groupAddress) throws UnknownHostException
 {
-    _groupAddress = InetAddress.getByName(groupAddress);
+	_groupAddress = InetAddress.getByName(groupAddress);
 }
 }}}
 This way, if the environment doesn't contain a property assignment for the annotation, Guice will not start the application.
@@ -96,6 +97,6 @@ Notice that properties that have been bound to annotations include an `@` symbol
 
 Notice also that the value for `my.secret.password` has been masked. Any property that ends in "password" (ignoring case) will be masked in this way. If your organisation has an application security team that is required to supply passwords, you can have them copy a `password.properties` file into your environment for GuiceBox to read. Development staff can then analyse log files without risk of seeing the password.
 
-= Logo File =
+= Log Header =
 
-Another cute feature of PropertiesModule is its ability to output an ASCII-Art logo or some kind of boilerplate text to the beginning of your logs. Just put a file called `logo.txt` somewhere in your classpath and it will be output as soon as Guice calls PropertiesModule to configure bindings.
+Another cute feature of PropertiesModule is its ability to output an ASCII-Art logo or some kind of boilerplate text to the beginning of your logs. Just put a file called `loghead.txt` somewhere in your classpath and it will be output as soon as Guice calls PropertiesModule to configure bindings.
