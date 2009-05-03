@@ -20,7 +20,7 @@ org.guicebox.failover.Environment=TEST
 org.guicebox.failover.WellKnownAddress=127.0.0.1
 org.guicebox.failover.GroupAddress=239.192.169.151
 }}}
-(download a sample file [http://code.google.com/p/guicebox/downloads/failover.properties here])
+(download a sample file [http://guicebox.googlecode.com/files/failover.properties here])
 
 The values of these properties are examples. You should change them to match your environment. A WellKnownAddress is any address which is available on your network. If you're not connected to a network, or not sure what to use, just leave it as it is above. A GroupAddress is a multicast group IP address. If you're not sure what to use, ask your network administrator, or just leave it as it is above.
 
@@ -34,7 +34,7 @@ handlers=java.util.logging.ConsoleHandler
 .level=INFO
 java.util.logging.ConsoleHandler.formatter=org.guicebox.BetterFormatter
 }}}
-(download a sample file [http://code.google.com/p/guicebox/downloads/logging.properties here])
+(download a sample file [http://guicebox.googlecode.com/files/logging.properties here])
 
 You can set the `.level` property to `FINE` or `FINEST` to really see what's going on in all its gory detail.
 
