@@ -83,7 +83,7 @@ import net.jcip.annotations.*;
 		{
 			public void run()
 			{
-				for(int failures = 0; failures < _hbTolerance; failures++)
+				for(int failures = 1; failures <= _hbTolerance; failures++)
 				{
 					// Abort if interrupted
 					if(Thread.currentThread().isInterrupted())
@@ -104,7 +104,7 @@ import net.jcip.annotations.*;
 					}
 					catch(TimeoutException e)
 					{
-						_log.warning("Time out (" + failures + "/" + _hbTolerance + ")");
+						_log.fine("Time out (" + failures + "/" + _hbTolerance + ")");
 					}
 					catch(TransportException e)
 					{
