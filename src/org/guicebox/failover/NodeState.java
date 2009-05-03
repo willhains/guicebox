@@ -13,24 +13,24 @@ interface NodeState
 	 */
 	NodeState DISCONNECTED = new NodeState()
 	{
-		@Override public NodeState onPeerAlive(Node thisNode, Heart heart, Heartbeat heartbeat, Application app)
+		public NodeState onPeerAlive(Node thisNode, Heart heart, Heartbeat heartbeat, Application app)
 		{
 			_log.info("Became STANDBY");
 			return STANDBY.onPeerAlive(thisNode, heart, heartbeat, app);
 		}
 		
-		@Override public NodeState onPeerDead(Heart heart, Application app)
+		public NodeState onPeerDead(Heart heart, Application app)
 		{
 			return this;
 		}
 		
-		@Override public NodeState onWkaAlive()
+		public NodeState onWkaAlive()
 		{
 			_log.info("Became STANDBY");
 			return STANDBY;
 		}
 		
-		@Override public NodeState onWkaDead(Heart heart, Application app)
+		public NodeState onWkaDead(Heart heart, Application app)
 		{
 			return this;
 		}
@@ -41,12 +41,12 @@ interface NodeState
 	 */
 	NodeState STANDBY = new NodeState()
 	{
-		@Override public NodeState onPeerAlive(Node thisNode, Heart heart, Heartbeat heartbeat, Application app)
+		public NodeState onPeerAlive(Node thisNode, Heart heart, Heartbeat heartbeat, Application app)
 		{
 			return this;
 		}
 		
-		@Override public NodeState onPeerDead(Heart heart, Application app)
+		public NodeState onPeerDead(Heart heart, Application app)
 		{
 			// Volunteer to take over as primary
 			heart.beat();
@@ -54,12 +54,12 @@ interface NodeState
 			return VOLUNTEER;
 		}
 		
-		@Override public NodeState onWkaAlive()
+		public NodeState onWkaAlive()
 		{
 			return this;
 		}
 		
-		@Override public NodeState onWkaDead(Heart heart, Application app)
+		public NodeState onWkaDead(Heart heart, Application app)
 		{
 			_log.severe("Became DISCONNECTED");
 			return DISCONNECTED;
@@ -71,7 +71,7 @@ interface NodeState
 	 */
 	NodeState VOLUNTEER = new NodeState()
 	{
-		@Override public NodeState onPeerAlive(Node thisNode, Heart heart, Heartbeat heartbeat, Application app)
+		public NodeState onPeerAlive(Node thisNode, Heart heart, Heartbeat heartbeat, Application app)
 		{
 			// If this is the superior node, send a heartbeat now to stop the other node
 			if(thisNode.isSuperiorTo(heartbeat.getNode()))
@@ -88,7 +88,7 @@ interface NodeState
 			return STANDBY;
 		}
 		
-		@Override public NodeState onPeerDead(Heart heart, Application app)
+		public NodeState onPeerDead(Heart heart, Application app)
 		{
 			// Take over as primary
 			_log.info("Became PRIMARY");
@@ -96,12 +96,12 @@ interface NodeState
 			return PRIMARY;
 		}
 		
-		@Override public NodeState onWkaAlive()
+		public NodeState onWkaAlive()
 		{
 			return this;
 		}
 		
-		@Override public NodeState onWkaDead(Heart heart, Application app)
+		public NodeState onWkaDead(Heart heart, Application app)
 		{
 			heart.stopBeating();
 			return STANDBY.onWkaDead(heart, app);
@@ -113,7 +113,7 @@ interface NodeState
 	 */
 	NodeState PRIMARY = new NodeState()
 	{
-		@Override public NodeState onPeerAlive(Node thisNode, Heart heart, Heartbeat heartbeat, Application app)
+		public NodeState onPeerAlive(Node thisNode, Heart heart, Heartbeat heartbeat, Application app)
 		{
 			// If this is the superior node, send a heartbeat now to stop the other node
 			if(thisNode.isSuperiorTo(heartbeat.getNode()))
@@ -131,17 +131,17 @@ interface NodeState
 			return STANDBY;
 		}
 		
-		@Override public NodeState onPeerDead(Heart heart, Application app)
+		public NodeState onPeerDead(Heart heart, Application app)
 		{
 			return this;
 		}
 		
-		@Override public NodeState onWkaAlive()
+		public NodeState onWkaAlive()
 		{
 			return this;
 		}
 		
-		@Override public NodeState onWkaDead(Heart heart, Application app)
+		public NodeState onWkaDead(Heart heart, Application app)
 		{
 			// Stop this node
 			app.stop();

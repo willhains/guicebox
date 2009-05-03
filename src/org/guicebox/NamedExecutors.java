@@ -23,7 +23,7 @@ public class NamedExecutors
 	{
 		return new ThreadFactory()
 		{
-			@Override public Thread newThread(Runnable r)
+			public Thread newThread(Runnable r)
 			{
 				return new Thread(r, threadName);
 			}
@@ -40,7 +40,7 @@ public class NamedExecutors
 		{
 			private final AtomicInteger _serialNo = new AtomicInteger();
 			
-			@Override public Thread newThread(Runnable r)
+			public Thread newThread(Runnable r)
 			{
 				return new Thread(r, threadName + "-" + _serialNo.getAndIncrement());
 			}

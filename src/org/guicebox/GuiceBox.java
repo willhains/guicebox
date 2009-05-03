@@ -59,7 +59,7 @@ import javax.management.*;
 		// Install a shutdown hook
 		hook.add("GuiceBox shutdown", new Runnable()
 		{
-			@Override public void run()
+			public void run()
 			{
 				kill();
 				System.out.flush();
@@ -74,7 +74,7 @@ import javax.management.*;
 	// Triggers to schedule start, stop, kill on the GuiceBox thread
 	private final Runnable _startTrigger = new Runnable()
 	{
-		@Override public void run()
+		public void run()
 		{
 			try
 			{
@@ -90,14 +90,14 @@ import javax.management.*;
 	};
 	private final Runnable _stopTrigger = new Runnable()
 	{
-		@Override public void run()
+		public void run()
 		{
 			_state = _state.stop(_commandFactory);
 		}
 	};
 	private final Runnable _killTrigger = new Runnable()
 	{
-		@Override public void run()
+		public void run()
 		{
 			_state = _state.kill(_commandFactory);
 			_gbThread.shutdownNow();
@@ -118,12 +118,12 @@ import javax.management.*;
 		// Join the cluster
 		_cluster.join(new Application()
 		{
-			@Override public void start()
+			public void start()
 			{
 				_gbThread.submit(_startTrigger);
 			}
 			
-			@Override public void stop()
+			public void stop()
 			{
 				_gbThread.submit(_stopTrigger);
 			}

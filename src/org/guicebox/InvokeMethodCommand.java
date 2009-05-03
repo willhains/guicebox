@@ -28,7 +28,7 @@ final class InvokeMethodCommand implements Callable<Object>
 		_instance = o;
 	}
 	
-	@Override public Object call() throws Exception
+	public Object call() throws Exception
 	{
 		return _method.invoke(_instance);
 	}

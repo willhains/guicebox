@@ -49,7 +49,7 @@ import net.jcip.annotations.*;
 	 * Compares nodes first by start time, then by IP address, then by process ID. Consistent with
 	 * {@link #equals(Object)}.
 	 */
-	@Override public int compareTo(Node that)
+	public int compareTo(Node that)
 	{
 		// Compare IP addresses
 		int compare = this._address.toString().compareTo(that._address.toString());

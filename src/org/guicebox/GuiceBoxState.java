@@ -14,7 +14,7 @@ interface GuiceBoxState
 	
 	GuiceBoxState STOPPED = new GuiceBoxState()
 	{
-		@Override public GuiceBoxState start(CommandFactory cmdFactory) throws Exception
+		public GuiceBoxState start(CommandFactory cmdFactory) throws Exception
 		{
 			// Run start commands
 			for(Callable<?> cmd : cmdFactory.getCommands(Start.class))
@@ -25,13 +25,13 @@ interface GuiceBoxState
 			return STARTED;
 		}
 		
-		@Override public GuiceBoxState stop(CommandFactory cmdFactory)
+		public GuiceBoxState stop(CommandFactory cmdFactory)
 		{
 			// Already stopped
 			return this;
 		}
 		
-		@Override public GuiceBoxState kill(CommandFactory cmdFactory)
+		public GuiceBoxState kill(CommandFactory cmdFactory)
 		{
 			// Run kill commands
 			for(Callable<?> cmd : cmdFactory.getCommands(Kill.class))
@@ -53,12 +53,12 @@ interface GuiceBoxState
 	
 	GuiceBoxState STARTED = new GuiceBoxState()
 	{
-		@Override public GuiceBoxState start(CommandFactory cmdFactory)
+		public GuiceBoxState start(CommandFactory cmdFactory)
 		{
 			return this;
 		}
 		
-		@Override public GuiceBoxState stop(CommandFactory cmdFactory)
+		public GuiceBoxState stop(CommandFactory cmdFactory)
 		{
 			// Run stop methods
 			for(Callable<?> cmd : cmdFactory.getCommands(Stop.class))
@@ -77,7 +77,7 @@ interface GuiceBoxState
 			return STOPPED;
 		}
 		
-		@Override public GuiceBoxState kill(CommandFactory cmdFactory)
+		public GuiceBoxState kill(CommandFactory cmdFactory)
 		{
 			return stop(cmdFactory).kill(cmdFactory);
 		}

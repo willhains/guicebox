@@ -81,7 +81,7 @@ import net.jcip.annotations.*;
 		final Heartbeat ownHeartbeat = _pulse.get();
 		final Runnable listen = new Runnable()
 		{
-			@Override public void run()
+			public void run()
 			{
 				for(int failures = 0; failures < _hbTolerance; failures++)
 				{
@@ -135,7 +135,7 @@ import net.jcip.annotations.*;
 		// Start beating
 		final Runnable beat = new Runnable()
 		{
-			@Override public void run()
+			public void run()
 			{
 				for(int failures = 0; failures < _hbTolerance; failures++)
 				{

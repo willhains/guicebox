@@ -29,7 +29,7 @@ public class GuiceBoxTest
 	private Capture<Application> _app;
 	@SuppressWarnings("unchecked") private final IAnswer<?> _appStart = new IAnswer()
 	{
-		@Override public Object answer() throws Throwable
+		public Object answer() throws Throwable
 		{
 			_app.getValue().start();
 			_app.reset();
@@ -58,7 +58,7 @@ public class GuiceBoxTest
 		final Capture<Runnable> runnable = new Capture<Runnable>();
 		expect(_gbThread.submit(capture(runnable))).andAnswer(new IAnswer()
 		{
-			@Override public Object answer() throws Throwable
+			public Object answer() throws Throwable
 			{
 				runnable.getValue().run();
 				runnable.reset();

@@ -91,7 +91,7 @@ public class StartThreadCommandTest
 	@Test public void killBeforeCall() throws Throwable
 	{
 		expect(_thread.shutdownNow()).andReturn(Collections.<Runnable> emptyList());
-		expect(_thread.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS)).andReturn(true);
+		expect(_thread.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS)).andReturn(true);
 		expect(_thread.submit(_runnable)).andReturn(null);
 		
 		replay(_mocks);
@@ -108,7 +108,7 @@ public class StartThreadCommandTest
 	{
 		expect(_thread.submit(_runnable)).andReturn(null);
 		expect(_thread.shutdownNow()).andReturn(Collections.<Runnable> emptyList());
-		expect(_thread.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS)).andThrow(new InterruptedException("faked"));
+		expect(_thread.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS)).andThrow(new InterruptedException("faked"));
 		
 		replay(_mocks);
 		

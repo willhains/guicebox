@@ -8,12 +8,12 @@ package org.guicebox;
  */
 public final class Standalone implements Cluster
 {
-	@Override public void join(Application app)
+	public void join(Application app)
 	{
 		app.start();
 	}
 	
-	@Override public void leave()
+	public void leave()
 	{
 		// No action required
 	}

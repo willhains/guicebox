@@ -227,7 +227,7 @@ import org.junit.*;
 	
 	private static final class _ShutdownAnswer implements IAnswer<List<Runnable>>
 	{
-		@Override public List<Runnable> answer() throws Throwable
+		public List<Runnable> answer() throws Throwable
 		{
 			Thread.currentThread().interrupt();
 			return Collections.<Runnable> emptyList();

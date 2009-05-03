@@ -54,12 +54,11 @@ final class StartThreadCommand implements Callable<Object>
 	
 	static String buildThreadName(String name, Field field)
 	{
-		return name == null || name.isEmpty()
-			? field.getDeclaringClass().getSimpleName() + "." + field.getName()
-			: name;
+		if(name != null && name.length() > 0) return name;
+		return field.getDeclaringClass().getSimpleName() + "." + field.getName();
 	}
 	
-	@Override public Object call()
+	public Object call()
 	{
 		_task = _thread.submit(_runnable);
 		return null;
@@ -74,7 +73,7 @@ final class StartThreadCommand implements Callable<Object>
 	{
 		return new Callable<Object>()
 		{
-			@Override public Object call()
+			public Object call()
 			{
 				if(_task != null) _task.cancel(true);
 				return null;
@@ -91,12 +90,12 @@ final class StartThreadCommand implements Callable<Object>
 	{
 		return new Callable<Object>()
 		{
-			@Override public Object call() throws Exception
+			public Object call() throws Exception
 			{
 				try
 				{
 					_thread.shutdownNow();
-					_thread.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
+					_thread.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
 				}
 				catch(InterruptedException e)
 				{
