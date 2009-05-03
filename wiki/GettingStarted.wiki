@@ -1,0 +1,10 @@
+#summary Steps to get a GuiceBox-based project up & running.
+
+= Introduction =
+
+The following steps are all you need to start using GuiceBox in your application.
+
+= Step 1: Required Libraries =
+
+* latest version of GuiceBox from [http://code.google.com/p/guicebox/downloads/list here]
+* latest version of Guice from [http://code.google.com/p/google-guice/downloads/list here]
