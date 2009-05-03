@@ -120,7 +120,7 @@ import org.guicebox.*;
 				pingListener.onPingTimeout();
 			}
 		};
-		_pingTask = _ping.scheduleWithFixedDelay(command, 0, _pingInterval, TimeUnit.MILLISECONDS);
+		_pingTask = _ping.scheduleWithFixedDelay(command, 0, _pingInterval, MILLISECONDS);
 	}
 	
 	public synchronized void stopPinging()
@@ -132,21 +132,6 @@ import org.guicebox.*;
 	{
 		// Shut down the executor
 		_ping.shutdownNow();
-		
-		try
-		{
-			// Wait for the executor to terminate
-			while(!_ping.awaitTermination(_pingInterval, MILLISECONDS))
-			{
-				_log.finest("Waiting for pinging to terminate...");
-			}
-			_log.fine("Pinging terminated");
-		}
-		catch(InterruptedException e)
-		{
-			// Restore interrupted status and return
-			Thread.currentThread().interrupt();
-		}
 	}
 }
 
