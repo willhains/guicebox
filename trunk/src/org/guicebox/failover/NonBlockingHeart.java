@@ -171,7 +171,7 @@ import net.jcip.annotations.*;
 				}
 				
 				// Beyond tolerance - stop beating
-				_log.severe("NonBlockingHeart failure");
+				_log.severe(NonBlockingHeart.class.getSimpleName() + " failure");
 				stopBeating();
 			}
 		};
