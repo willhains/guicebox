@@ -24,8 +24,8 @@ import org.junit.*;
 	private ScheduledFuture _pingTask;
 	
 	// Captures
-	private Capture<Integer> _initial;
-	private Capture<Integer> _period;
+	private Capture<Long> _initial;
+	private Capture<Long> _period;
 	private Capture<Runnable> _command;
 	
 	// Values
@@ -56,8 +56,8 @@ import org.junit.*;
 	
 	@Before public void createCaptures()
 	{
-		_initial = new Capture<Integer>();
-		_period = new Capture<Integer>();
+		_initial = new Capture<Long>();
+		_period = new Capture<Long>();
 	}
 	
 	private Ping _createPing()
@@ -95,8 +95,8 @@ import org.junit.*;
 		// Start ping
 		final Ping ping = _createPing();
 		ping.start(_listener);
-		assertEquals(0, _initial.getValue());
-		assertEquals(_interval, _period.getValue());
+		assertEquals(0, (long)_initial.getValue());
+		assertEquals(_interval, (long)_period.getValue());
 		
 		// Receive ping responses successfully
 		for(int i = 0; i < repeat; i++)
@@ -124,8 +124,8 @@ import org.junit.*;
 		// Start ping
 		final Ping ping = _createPing();
 		ping.start(_listener);
-		assertEquals(0, _initial.getValue());
-		assertEquals(_interval, _period.getValue());
+		assertEquals(0, (long)_initial.getValue());
+		assertEquals(_interval, (long)_period.getValue());
 		
 		// JavaPing task
 		for(int i = 0; i < repeat; i++)
@@ -158,8 +158,8 @@ import org.junit.*;
 		// Start ping
 		final Ping ping = _createPing();
 		ping.start(_listener);
-		assertEquals(0, _initial.getValue());
-		assertEquals(_interval, _period.getValue());
+		assertEquals(0, (long)_initial.getValue());
+		assertEquals(_interval, (long)_period.getValue());
 		
 		// JavaPing task
 		for(int i = 0; i < repeat * 3; i++)
@@ -188,8 +188,8 @@ import org.junit.*;
 		// Start ping
 		final Ping ping = _createPing();
 		ping.start(_listener);
-		assertEquals(0, _initial.getValue());
-		assertEquals(_interval, _period.getValue());
+		assertEquals(0, (long)_initial.getValue());
+		assertEquals(_interval, (long)_period.getValue());
 		
 		// JavaPing task
 		for(int i = 0; i < repeat; i++)
@@ -206,16 +206,13 @@ import org.junit.*;
 	{
 		// Should shut down the ping thread and cancel the ping task
 		expect(_pingThread.shutdownNow()).andAnswer(new _ShutdownAnswer());
-		_pingThread.awaitTermination(_interval, MILLISECONDS);
-		expectLastCall().andReturn(false).times(2);
-		expectLastCall().andReturn(true);
 		replay(_mocks);
 		
 		// Start ping
 		final Ping ping = _createPing();
 		ping.start(_listener);
-		assertEquals(0, _initial.getValue());
-		assertEquals(_interval, _period.getValue());
+		assertEquals(0, (long)_initial.getValue());
+		assertEquals(_interval, (long)_period.getValue());
 		
 		// Stop ping permanently
 		ping.stop();
