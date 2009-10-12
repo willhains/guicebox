@@ -9,7 +9,7 @@ import org.junit.*;
  * 
  * @author willhains
  */
-public abstract class ComparableTest<T extends Comparable<T>> extends GeneralContractTest<T>
+@Ignore public abstract class ComparableTest<T extends Comparable<T>> extends GeneralContractTest<T>
 {
 	/**
 	 * @return another instance of the class under test, that is logically greater than the specified instance.
