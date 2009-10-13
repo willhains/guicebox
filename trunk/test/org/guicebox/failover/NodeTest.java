@@ -51,8 +51,46 @@ public class NodeTest extends ComparableTest<Node>
 	
 	@Test public void isSuperiorTo() throws Exception
 	{
-		assertTrue(imp().isSuperiorTo(createGreater(imp())));
-		assertFalse(imp().isSuperiorTo(createEquivalent(imp())));
-		assertFalse(imp().isSuperiorTo(createLesser(imp())));
+		final Node node = imp();
+		final Node greater = createGreater(node);
+		final Node equiv = createEquivalent(node);
+		final Node lesser = createLesser(node);
+		
+		assertTrue(node.isSuperiorTo(greater));
+		assertFalse(node.isSuperiorTo(equiv));
+		assertFalse(node.isSuperiorTo(lesser));
+		
+		assertFalse(greater.isSuperiorTo(lesser));
+		assertFalse(greater.isSuperiorTo(equiv));
+		assertFalse(equiv.isSuperiorTo(lesser));
+		
+		assertTrue(lesser.isSuperiorTo(greater));
+		assertTrue(lesser.isSuperiorTo(equiv));
+		assertTrue(equiv.isSuperiorTo(greater));
+	}
+	
+	@Test public void failDirection()
+	{
+		final Node node = imp();
+		final Node greater = createGreater(node);
+		final Node equiv = createEquivalent(node);
+		final Node lesser = createLesser(node);
+		
+		node.setFailDirection(false);
+		greater.setFailDirection(false);
+		equiv.setFailDirection(false);
+		lesser.setFailDirection(false);
+		
+		assertFalse(node.isSuperiorTo(greater));
+		assertTrue(node.isSuperiorTo(equiv));
+		assertTrue(node.isSuperiorTo(lesser));
+		
+		assertTrue(greater.isSuperiorTo(lesser));
+		assertTrue(greater.isSuperiorTo(equiv));
+		assertTrue(equiv.isSuperiorTo(lesser));
+		
+		assertFalse(lesser.isSuperiorTo(greater));
+		assertFalse(lesser.isSuperiorTo(equiv));
+		assertFalse(equiv.isSuperiorTo(greater));
 	}
 }
