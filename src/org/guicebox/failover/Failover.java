@@ -41,6 +41,7 @@ import org.guicebox.*;
 	
 	// Application cluster name
 	private final String _appName;
+	private final String _env;
 	
 	// Heartbeat utility
 	private final Provider<Heart> _heartFactory;
@@ -61,17 +62,19 @@ import org.guicebox.*;
 	
 	@Inject Failover(
 		@ApplicationName String appName,
+		@UserName String env,
 		Node node,
 		Provider<Heart> heartFactory,
 		Provider<Ping> pingFactory,
 		Logger log)
 	{
-		this(appName, NodeState.DISCONNECTED, node, heartFactory, pingFactory, log);
+		this(appName, env, NodeState.DISCONNECTED, node, heartFactory, pingFactory, log);
 	}
 	
 	// Should only be called from unit tests
 	Failover(
 		String appName,
+		String env,
 		NodeState initialState,
 		Node node,
 		Provider<Heart> heartFactory,
@@ -79,6 +82,7 @@ import org.guicebox.*;
 		Logger log)
 	{
 		_appName = appName;
+		_env = env;
 		_initialState = initialState;
 		_node = node;
 		_heartFactory = heartFactory;
@@ -86,11 +90,16 @@ import org.guicebox.*;
 		_log = log;
 	}
 	
+	@Override public String toString()
+	{
+		return _appName + " (" + _env + ")";
+	}
+	
 	public void join(final Application app)
 	{
 		synchronized(_clusterLock)
 		{
-			_log.info("Joining cluster " + _appName);
+			_log.info("Joining cluster " + this);
 			
 			// Tolerate multiple calls to this method
 			if(_state != null) return;
@@ -146,7 +155,7 @@ import org.guicebox.*;
 	{
 		synchronized(_clusterLock)
 		{
-			_log.info("Leaving cluster " + _appName);
+			_log.info("Leaving cluster " + this);
 			
 			// Tolerate multiple calls to this method
 			if(_state == null) return;

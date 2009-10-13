@@ -56,7 +56,7 @@ public class FailoverTest
 	
 	private Failover _joinCluster()
 	{
-		final Failover failover = new Failover("FailoverTest", _state, _localhost, _heartFactory, _pingFactory, getAnonymousLogger());
+		final Failover failover = new Failover("FailoverTest", "TEST", _state, _localhost, _heartFactory, _pingFactory, getAnonymousLogger());
 		failover.join(_app);
 		return failover;
 	}
@@ -176,7 +176,7 @@ public class FailoverTest
 		
 		replay(_mocks);
 		
-		final Failover failover = new Failover("FailoverTest", _localhost, _heartFactory, _pingFactory, getAnonymousLogger());
+		final Failover failover = new Failover("FailoverTest", "TEST", _localhost, _heartFactory, _pingFactory, getAnonymousLogger());
 		failover.join(_app);
 		_pingListener.getValue().onPing();
 		_hbListener.getValue().onHeartbeatTimeout();
