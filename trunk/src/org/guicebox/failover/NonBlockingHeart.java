@@ -92,7 +92,7 @@ import net.jcip.annotations.*;
 						// Abort if interrupted
 						if(Thread.currentThread().isInterrupted())
 						{
-							_log.finest("Heartbeat listener stopped");
+							_log.info("Heartbeat listener interrupted. Shutting down.");
 							return;
 						}
 						
@@ -149,7 +149,7 @@ import net.jcip.annotations.*;
 						// Abort if interrupted
 						if(Thread.currentThread().isInterrupted())
 						{
-							_log.finest("Heartbeat sender stopped");
+							_log.info("Heartbeat sender interrupted. Shutting down.");
 							return;
 						}
 						
@@ -207,25 +207,5 @@ import net.jcip.annotations.*;
 		// Shut down the executors
 		_beat.shutdownNow();
 		_listen.shutdownNow();
-		
-		try
-		{
-			// Wait for the executors to terminate
-			while(!_beat.awaitTermination(_hbInterval, MILLISECONDS))
-			{
-				_log.finest("Waiting for heartbeating to terminate...");
-			}
-			_log.finest("Heartbeating terminated");
-			while(!_listen.awaitTermination(_hbInterval, MILLISECONDS))
-			{
-				_log.finest("Waiting for heartbeat listening to terminate...");
-			}
-			_log.finest("Hearbeat listening terminated");
-		}
-		catch(InterruptedException e)
-		{
-			// Restore interrupted status and return
-			Thread.currentThread().interrupt();
-		}
 	}
 }

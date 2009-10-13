@@ -86,7 +86,7 @@ import org.guicebox.*;
 						// Abort if interrupted
 						if(Thread.currentThread().isInterrupted())
 						{
-							_log.finest("JavaPing stopped");
+							_log.finest("JavaPing interrupted. Shutting down.");
 							return;
 						}
 						

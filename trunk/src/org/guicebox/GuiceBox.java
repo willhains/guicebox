@@ -152,6 +152,8 @@ import javax.management.*;
 	 */
 	public void kill()
 	{
+		_log.info("Shutting down...");
+		
 		// Leave the cluster
 		_cluster.leave();
 		
