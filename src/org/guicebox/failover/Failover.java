@@ -33,19 +33,22 @@ import org.guicebox.*;
  */
 @ThreadSafe public class Failover implements Cluster
 {
+	// Concurrency lock for cluster
+	private final Object _clusterLock = new Object();
+	
 	// Heartbeat utility
 	private final Provider<Heart> _heartFactory;
-	@GuardedBy("this") private Heart _heart;
+	@GuardedBy("_clusterLock") private Heart _heart;
 	
 	// Ping utility
 	private final Provider<Ping> _pingFactory;
-	@GuardedBy("this") private Ping _ping;
+	@GuardedBy("_clusterLock") private Ping _ping;
 	
 	// Unique fingerprint of this node
 	private final Node _node;
 	
 	// State of this node in the cluster (null when not participating in the cluster)
-	@GuardedBy("this") private NodeState _state;
+	@GuardedBy("_clusterLock") private NodeState _state;
 	
 	// Initial state of a node when it joins the cluster
 	private final NodeState _initialState;
@@ -64,69 +67,75 @@ import org.guicebox.*;
 		_pingFactory = pingFactory;
 	}
 	
-	public synchronized void join(final Application app)
+	public void join(final Application app)
 	{
-		// Tolerate multiple calls to this method
-		if(_state != null) return;
-		
-		// Initialise the state of the node
-		_state = _initialState;
-		_heart = _heartFactory.get();
-		_ping = _pingFactory.get();
-		
-		// Start checking for network connectivity
-		_ping.start(new PingListener()
+		synchronized(_clusterLock)
 		{
-			public void onPing()
-			{
-				synchronized(Failover.this)
-				{
-					_state = _state.onWkaAlive();
-				}
-			}
+			// Tolerate multiple calls to this method
+			if(_state != null) return;
 			
-			public void onPingTimeout()
-			{
-				synchronized(Failover.this)
-				{
-					_state = _state.onWkaDead(_heart, app);
-				}
-			}
-		});
-		
-		// Start listening for heartbeats from the primary node
-		_heart.listen(new HeartbeatListener()
-		{
-			public void onHeartbeat(final Heartbeat hb)
-			{
-				synchronized(Failover.this)
-				{
-					_state = _state.onPeerAlive(_node, _heart, hb, app);
-				}
-			}
+			// Initialise the state of the node
+			_state = _initialState;
+			_heart = _heartFactory.get();
+			_ping = _pingFactory.get();
 			
-			public void onHeartbeatTimeout()
+			// Start checking for network connectivity
+			_ping.start(new PingListener()
 			{
-				synchronized(Failover.this)
+				public void onPing()
 				{
-					_state = _state.onPeerDead(_heart, app);
+					synchronized(_clusterLock)
+					{
+						_state = _state.onWkaAlive();
+					}
 				}
-			}
-		});
+				
+				public void onPingTimeout()
+				{
+					synchronized(_clusterLock)
+					{
+						_state = _state.onWkaDead(_heart, app);
+					}
+				}
+			});
+			
+			// Start listening for heartbeats from the primary node
+			_heart.listen(new HeartbeatListener()
+			{
+				public void onHeartbeat(final Heartbeat hb)
+				{
+					synchronized(_clusterLock)
+					{
+						_state = _state.onPeerAlive(_node, _heart, hb, app);
+					}
+				}
+				
+				public void onHeartbeatTimeout()
+				{
+					synchronized(_clusterLock)
+					{
+						_state = _state.onPeerDead(_heart, app);
+					}
+				}
+			});
+		}
 	}
 	
-	public synchronized void leave()
+	public void leave()
 	{
-		// Tolerate multiple calls to this method
-		if(_state == null) return;
-		
-		// Stop sending & receiving heartbeats
-		_heart.stop();
-		
-		// Stop checking for network connectivity
-		_ping.stop();
-		
-		// No cluster state
-		_state = null;
+		synchronized(_clusterLock)
+		{
+			// Tolerate multiple calls to this method
+			if(_state == null) return;
+			
+			// Stop sending & receiving heartbeats
+			_heart.stop();
+			
+			// Stop checking for network connectivity
+			_ping.stop();
+			
+			// No cluster state
+			_state = null;
+		}
 	}
 }
