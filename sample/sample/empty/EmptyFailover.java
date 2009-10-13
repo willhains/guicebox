@@ -12,7 +12,7 @@ import org.guicebox.failover.udp.*;
  * 
  * @author willhains
  */
-public class EmptyGuiceBox
+public class EmptyFailover
 {
 	public static void main(String[] args) throws JMException
 	{

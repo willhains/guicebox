@@ -1,6 +1,7 @@
 package org.guicebox.failover;
 
 import com.google.inject.*;
+import java.util.logging.*;
 import net.jcip.annotations.*;
 import org.guicebox.*;
 
@@ -33,8 +34,13 @@ import org.guicebox.*;
  */
 @ThreadSafe public class Failover implements Cluster
 {
+	private final Logger _log;
+	
 	// Concurrency lock for cluster
 	private final Object _clusterLock = new Object();
+	
+	// Application cluster name
+	private final String _appName;
 	
 	// Heartbeat utility
 	private final Provider<Heart> _heartFactory;
@@ -53,24 +59,39 @@ import org.guicebox.*;
 	// Initial state of a node when it joins the cluster
 	private final NodeState _initialState;
 	
-	@Inject Failover(Node node, Provider<Heart> heartFactory, Provider<Ping> pingFactory)
+	@Inject Failover(
+		@ApplicationName String appName,
+		Node node,
+		Provider<Heart> heartFactory,
+		Provider<Ping> pingFactory,
+		Logger log)
 	{
-		this(NodeState.DISCONNECTED, node, heartFactory, pingFactory);
+		this(appName, NodeState.DISCONNECTED, node, heartFactory, pingFactory, log);
 	}
 	
 	// Should only be called from unit tests
-	Failover(NodeState initialState, Node node, Provider<Heart> heartFactory, Provider<Ping> pingFactory)
+	Failover(
+		String appName,
+		NodeState initialState,
+		Node node,
+		Provider<Heart> heartFactory,
+		Provider<Ping> pingFactory,
+		Logger log)
 	{
+		_appName = appName;
 		_initialState = initialState;
 		_node = node;
 		_heartFactory = heartFactory;
 		_pingFactory = pingFactory;
+		_log = log;
 	}
 	
 	public void join(final Application app)
 	{
 		synchronized(_clusterLock)
 		{
+			_log.info("Joining cluster " + _appName);
+			
 			// Tolerate multiple calls to this method
 			if(_state != null) return;
 			
@@ -125,6 +146,8 @@ import org.guicebox.*;
 	{
 		synchronized(_clusterLock)
 		{
+			_log.info("Leaving cluster " + _appName);
+			
 			// Tolerate multiple calls to this method
 			if(_state == null) return;
 			

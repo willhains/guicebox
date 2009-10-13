@@ -1,5 +1,6 @@
 package org.guicebox.failover;
 
+import static java.util.logging.Logger.*;
 import static org.easymock.EasyMock.*;
 
 import com.google.inject.*;
@@ -55,7 +56,7 @@ public class FailoverTest
 	
 	private Failover _joinCluster()
 	{
-		final Failover failover = new Failover(_state, _localhost, _heartFactory, _pingFactory);
+		final Failover failover = new Failover("FailoverTest", _state, _localhost, _heartFactory, _pingFactory, getAnonymousLogger());
 		failover.join(_app);
 		return failover;
 	}
@@ -175,7 +176,7 @@ public class FailoverTest
 		
 		replay(_mocks);
 		
-		final Failover failover = new Failover(_localhost, _heartFactory, _pingFactory);
+		final Failover failover = new Failover("FailoverTest", _localhost, _heartFactory, _pingFactory, getAnonymousLogger());
 		failover.join(_app);
 		_pingListener.getValue().onPing();
 		_hbListener.getValue().onHeartbeatTimeout();
