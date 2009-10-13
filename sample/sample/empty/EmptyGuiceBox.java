@@ -16,7 +16,9 @@ public class EmptyGuiceBox
 {
 	public static void main(String[] args) throws JMException
 	{
-		final Injector injector = Guice.createInjector(new CommandLineModule(), new UdpFailoverModule("sample.empty"));
+		final Injector injector = Guice.createInjector(
+			new CommandLineModule(args),
+			new UdpFailoverModule("sample.empty"));
 		final GuiceBox guicebox = injector.getInstance(GuiceBox.class);
 		guicebox.registerJMX();
 		guicebox.start();
