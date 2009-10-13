@@ -79,7 +79,7 @@ import net.jcip.annotations.*;
 	
 	// Unique sequence number - for logging only
 	private static final AtomicLong _SEQ = new AtomicLong();
-	private final long _seqNo = _SEQ.incrementAndGet();
+	private final String _seqNo = Long.toString(_SEQ.incrementAndGet());
 	
 	@Override public String toString()
 	{
