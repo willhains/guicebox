@@ -29,9 +29,10 @@ import org.guicebox.*;
 	// How many multiples of the ping interval to wait before timing out
 	private volatile int _pingTolerance = 3;
 	
-	// Timer
+	// Timer thread & task and its lock
 	private final ScheduledExecutorService _ping;
-	@GuardedBy("this") private Future<?> _pingTask;
+	private final Object _pingLock = new Object();
+	@GuardedBy("_pingLock") private Future<?> _pingTask;
 	
 	/**
 	 * Prepares a ping to the specified well-known address (WKA). Call {@link #start(PingListener)} to start pinging.
@@ -68,64 +69,70 @@ import org.guicebox.*;
 		_pingTolerance = tolerance;
 	}
 	
-	public synchronized void start(final PingListener pingListener)
+	public void start(final PingListener pingListener)
 	{
-		// Make sure we don't have multiple pings running
-		stopPinging();
-		
-		// Create and schedule the ping task
-		final Runnable command = new Runnable()
+		synchronized(_pingLock)
 		{
-			public void run()
+			// Make sure we don't have multiple pings running
+			stopPinging();
+			
+			// Create and schedule the ping task
+			final Runnable command = new Runnable()
 			{
-				for(int failures = 1; failures <= _pingTolerance; failures++)
+				public void run()
 				{
-					// Abort if interrupted
-					if(Thread.currentThread().isInterrupted())
+					for(int failures = 1; failures <= _pingTolerance; failures++)
 					{
-						_log.finest("JavaPing stopped");
-						return;
-					}
-					
-					try
-					{
-						// JavaPing
-						_log.finest("Pinging...");
-						if(_wka.isReachable(_pingInterval * _pingTolerance))
+						// Abort if interrupted
+						if(Thread.currentThread().isInterrupted())
 						{
-							// Pinged successfully
-							_log.finest("JavaPing response");
-							pingListener.onPing();
+							_log.finest("JavaPing stopped");
 							return;
 						}
 						
-						// JavaPing timeout
-						_log.warning("Time out (" + failures + "/" + _pingTolerance + ")");
-					}
-					catch(IOException e)
-					{
 						try
 						{
-							_log.severe("Could not verify WKA (" + failures + "/" + _pingTolerance + "): " + e);
-							Thread.sleep(_pingInterval);
+							// JavaPing
+							_log.finest("Pinging...");
+							if(_wka.isReachable(_pingInterval * _pingTolerance))
+							{
+								// Pinged successfully
+								_log.finest("JavaPing response");
+								pingListener.onPing();
+								return;
+							}
+							
+							// JavaPing timeout
+							_log.warning("Time out (" + failures + "/" + _pingTolerance + ")");
 						}
-						catch(InterruptedException ee)
+						catch(IOException e)
 						{
-							Thread.currentThread().interrupt();
+							try
+							{
+								_log.severe("Could not verify WKA (" + failures + "/" + _pingTolerance + "): " + e);
+								Thread.sleep(_pingInterval);
+							}
+							catch(InterruptedException ee)
+							{
+								Thread.currentThread().interrupt();
+							}
 						}
 					}
+					
+					// Beyond tolerance - notify listener
+					pingListener.onPingTimeout();
 				}
-				
-				// Beyond tolerance - notify listener
-				pingListener.onPingTimeout();
-			}
-		};
-		_pingTask = _ping.scheduleWithFixedDelay(command, 0, _pingInterval, MILLISECONDS);
+			};
+			_pingTask = _ping.scheduleWithFixedDelay(command, 0, _pingInterval, MILLISECONDS);
+		}
 	}
 	
-	public synchronized void stopPinging()
+	public void stopPinging()
 	{
-		if(_pingTask != null) _pingTask.cancel(true);
+		synchronized(_pingLock)
+		{
+			if(_pingTask != null) _pingTask.cancel(true);
+		}
 	}
 	
 	public void stop()
