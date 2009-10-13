@@ -5,13 +5,14 @@ import static java.util.concurrent.TimeUnit.*;
 import com.google.inject.*;
 import java.io.*;
 import java.net.*;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.logging.*;
 import net.jcip.annotations.*;
 import org.guicebox.*;
 
 /**
- * Utility for pinging a specified network address. The wire protocol is implemented by
+ * Utility for pinging a list of specified network addresses. The wire protocol is implemented by
  * {@link java.net.InetAddress#isReachable(int)}.
  * 
  * @author willhains
@@ -20,8 +21,8 @@ import org.guicebox.*;
 {
 	private final Logger _log;
 	
-	// The well-known address to ping
-	private final InetAddress _wka;
+	// The well-known addresses to ping
+	private final List<InetAddress> _wka;
 	
 	// How long to wait between each ping
 	private volatile int _pingInterval = 1000;
@@ -37,24 +38,35 @@ import org.guicebox.*;
 	/**
 	 * Prepares a ping to the specified well-known address (WKA). Call {@link #start(PingListener)} to start pinging.
 	 * 
-	 * @param wka the host name or IP address of the ping target.
+	 * @param wka the comma-or-whitespace-separated host names or IP addresses of the ping targets.
 	 * @throws UnknownHostException if the specified host name could not be found in DNS.
 	 */
 	@Inject public JavaPing(@WellKnownAddress String wka, Logger log) throws UnknownHostException
 	{
 		// Look up the IP address of the WKA
 		this( //
-			new InetAddressAdapter(wka),
+			_parseSet(wka),
 			NamedExecutors.newSingleThreadScheduledExecutor("JavaPing: " + wka),
 			log);
 	}
 	
 	// Should only be called from unit tests
-	JavaPing(InetAddress wka, ScheduledExecutorService pingThread, Logger log)
+	JavaPing(Set<InetAddress> wka, ScheduledExecutorService pingThread, Logger log)
 	{
-		_wka = wka;
+		_wka = new LinkedList<InetAddress>(wka);
 		_ping = pingThread;
 		_log = log;
+	}
+	
+	private static Set<InetAddress> _parseSet(String addresses) throws UnknownHostException
+	{
+		assert addresses != null : "WKAs must be set";
+		final Set<InetAddress> wkaSet = new LinkedHashSet<InetAddress>();
+		for(String wka : addresses.split("[,;\\s]"))
+		{
+			if(wka.length() > 0) wkaSet.add(new InetAddressAdapter(wka));
+		}
+		return wkaSet;
 	}
 	
 	@Inject(optional = true) void setPingInterval(@PingInterval int interval)
@@ -92,14 +104,27 @@ import org.guicebox.*;
 						
 						try
 						{
-							// JavaPing
-							_log.finest("Pinging...");
-							if(_wka.isReachable(_pingInterval * _pingTolerance))
+							for(final InetAddress wka : _wka)
 							{
-								// Pinged successfully
-								_log.finest("JavaPing response");
-								pingListener.onPing();
-								return;
+								// Java ping
+								_log.finest("Pinging " + wka.getHostAddress() + "...");
+								if(wka.isReachable(_pingInterval * _pingTolerance))
+								{
+									// Pinged successfully
+									_log.finest("JavaPing response");
+									pingListener.onPing();
+									
+									// Move this host to the front of the queue to avoid pinging a dead host
+									Collections.sort(_wka, new Comparator<InetAddress>()
+									{
+										public int compare(InetAddress o1, InetAddress o2)
+										{
+											if(o1 == wka) return o2 == wka ? 0 : -1;
+											return o2 == wka ? 1 : 0;
+										}
+									});
+									return;
+								}
 							}
 							
 							// JavaPing timeout
