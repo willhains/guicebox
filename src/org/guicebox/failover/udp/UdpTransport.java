@@ -27,13 +27,11 @@ import org.guicebox.failover.*;
 	// Time to Live
 	private volatile int _ttl = 16;
 	
-	// Sockets used for sending/receiving
-	@GuardedBy("_sendLock") private MulticastSocket _sendSocket;
-	@GuardedBy("_receiveLock") private MulticastSocket _receiveSocket;
-	
-	// Concurrency locks for sending/receiving
+	// Sockets used for sending/receiving and their locks
 	private final Object _sendLock = new Object();
 	private final Object _receiveLock = new Object();
+	@GuardedBy("_sendLock") private MulticastSocket _sendSocket;
+	@GuardedBy("_receiveLock") private MulticastSocket _receiveSocket;
 	
 	@Inject UdpTransport(@GroupAddress String groupAddress) throws UnknownHostException
 	{
@@ -130,7 +128,7 @@ import org.guicebox.failover.*;
 				}
 				
 				// Create & send heartbeat packet
-			_sendSocket.send(createPacket(hb, _groupAddress, _destPort));
+				_sendSocket.send(createPacket(hb, _groupAddress, _destPort));
 			}
 			catch(IOException e)
 			{

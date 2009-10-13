@@ -30,10 +30,12 @@ import net.jcip.annotations.*;
 	// Number of heartbeats to miss
 	private volatile int _hbTolerance = 5;
 	
-	// Send/receive threads & tasks
+	// Send/receive threads & tasks and their locks
 	private final ScheduledExecutorService _listen, _beat;
-	@GuardedBy("this") private Future<?> _listenTask;
-	@GuardedBy("this") private Future<?> _beatTask;
+	private final Object _listenLock = new Object();
+	private final Object _beatLock = new Object();
+	@GuardedBy("_listenLock") private Future<?> _listenTask;
+	@GuardedBy("_beatLock") private Future<?> _beatTask;
 	
 	@Inject NonBlockingHeart(Provider<Heartbeat> pulse, Transport transport, Logger log)
 	{
@@ -72,120 +74,132 @@ import net.jcip.annotations.*;
 		_hbTolerance = tolerance;
 	}
 	
-	public synchronized void listen(final HeartbeatListener heartbeatListener)
+	public void listen(final HeartbeatListener heartbeatListener)
 	{
-		// Make sure we don't have multiple listeners running
-		stopListening();
-		
-		// Start listening
-		final Heartbeat ownHeartbeat = _pulse.get();
-		final Runnable listen = new Runnable()
+		synchronized(_listenLock)
 		{
-			public void run()
+			// Make sure we don't have multiple listeners running
+			stopListening();
+			
+			// Start listening
+			final Heartbeat ownHeartbeat = _pulse.get();
+			final Runnable listen = new Runnable()
 			{
-				for(int failures = 1; failures <= _hbTolerance; failures++)
+				public void run()
 				{
-					// Abort if interrupted
-					if(Thread.currentThread().isInterrupted())
+					for(int failures = 1; failures <= _hbTolerance; failures++)
 					{
-						_log.finest("Heartbeat listener stopped");
-						return;
-					}
-					
-					try
-					{
-						// Receive heartbeat
-						final Heartbeat heartbeat = _transport.receive(ownHeartbeat, _hbInterval);
+						// Abort if interrupted
+						if(Thread.currentThread().isInterrupted())
+						{
+							_log.finest("Heartbeat listener stopped");
+							return;
+						}
 						
-						// Received successfully
-						_log.finest("Received heartbeat: " + heartbeat);
-						heartbeatListener.onHeartbeat(heartbeat);
-						return;
-					}
-					catch(TimeoutException e)
-					{
-						_log.fine("Time out (" + failures + "/" + _hbTolerance + ")");
-					}
-					catch(TransportException e)
-					{
 						try
 						{
-							_log.severe("Could not read heartbeat (" + failures + "/" + _hbTolerance + "): " + e);
-							Thread.sleep(_hbInterval);
+							// Receive heartbeat
+							final Heartbeat heartbeat = _transport.receive(ownHeartbeat, _hbInterval);
+							
+							// Received successfully
+							_log.finest("Received heartbeat: " + heartbeat);
+							heartbeatListener.onHeartbeat(heartbeat);
+							return;
 						}
-						catch(InterruptedException ee)
+						catch(TimeoutException e)
 						{
-							Thread.currentThread().interrupt();
+							_log.fine("Time out (" + failures + "/" + _hbTolerance + ")");
 						}
-					}
-				}
-				
-				// Beyond tolerance - notify listener
-				heartbeatListener.onHeartbeatTimeout();
-			}
-		};
-		_listenTask = _listen.scheduleWithFixedDelay(listen, 0, 1, MILLISECONDS);
-	}
-	
-	public synchronized void beat()
-	{
-		// Make sure we don't have multiple hearbeaters running
-		stopBeating();
-		
-		// Start beating
-		final Runnable beat = new Runnable()
-		{
-			public void run()
-			{
-				for(int failures = 0; failures < _hbTolerance; failures++)
-				{
-					// Abort if interrupted
-					if(Thread.currentThread().isInterrupted())
-					{
-						_log.finest("Heartbeat sender stopped");
-						return;
+						catch(TransportException e)
+						{
+							try
+							{
+								_log.severe("Could not read heartbeat (" + failures + "/" + _hbTolerance + "): " + e);
+								Thread.sleep(_hbInterval);
+							}
+							catch(InterruptedException ee)
+							{
+								Thread.currentThread().interrupt();
+							}
+						}
 					}
 					
-					try
+					// Beyond tolerance - notify listener
+					heartbeatListener.onHeartbeatTimeout();
+				}
+			};
+			_listenTask = _listen.scheduleWithFixedDelay(listen, 0, 1, MILLISECONDS);
+		}
+	}
+	
+	public void beat()
+	{
+		synchronized(_beatLock)
+		{
+			// Make sure we don't have multiple hearbeaters running
+			stopBeating();
+			
+			// Start beating
+			final Runnable beat = new Runnable()
+			{
+				public void run()
+				{
+					for(int failures = 0; failures < _hbTolerance; failures++)
 					{
-						// Send heartbeat
-						final Heartbeat heartbeat = _pulse.get();
-						_transport.send(heartbeat);
+						// Abort if interrupted
+						if(Thread.currentThread().isInterrupted())
+						{
+							_log.finest("Heartbeat sender stopped");
+							return;
+						}
 						
-						// Sent successfully
-						_log.finest("Sent heartbeat: " + heartbeat);
-						return;
-					}
-					catch(TransportException e)
-					{
 						try
 						{
-							_log.severe("Couldn't send heartbeat (" + failures + "/" + _hbTolerance + "): " + e);
-							Thread.sleep(_hbInterval);
+							// Send heartbeat
+							final Heartbeat heartbeat = _pulse.get();
+							_transport.send(heartbeat);
+							
+							// Sent successfully
+							_log.finest("Sent heartbeat: " + heartbeat);
+							return;
 						}
-						catch(InterruptedException ee)
+						catch(TransportException e)
 						{
-							Thread.currentThread().interrupt();
+							try
+							{
+								_log.severe("Couldn't send heartbeat (" + failures + "/" + _hbTolerance + "): " + e);
+								Thread.sleep(_hbInterval);
+							}
+							catch(InterruptedException ee)
+							{
+								Thread.currentThread().interrupt();
+							}
 						}
 					}
+					
+					// Beyond tolerance - stop beating
+					_log.severe(NonBlockingHeart.class.getSimpleName() + " failure");
+					stopBeating();
 				}
-				
-				// Beyond tolerance - stop beating
-				_log.severe(NonBlockingHeart.class.getSimpleName() + " failure");
-				stopBeating();
-			}
-		};
-		_beatTask = _beat.scheduleAtFixedRate(beat, 0, _hbInterval, MILLISECONDS);
+			};
+			_beatTask = _beat.scheduleAtFixedRate(beat, 0, _hbInterval, MILLISECONDS);
+		}
 	}
 	
-	public synchronized void stopListening()
+	public void stopListening()
 	{
-		if(_listenTask != null) _listenTask.cancel(true);
+		synchronized(_listenLock)
+		{
+			if(_listenTask != null) _listenTask.cancel(true);
+		}
 	}
 	
-	public synchronized void stopBeating()
+	public void stopBeating()
 	{
-		if(_beatTask != null) _beatTask.cancel(true);
+		synchronized(_beatLock)
+		{
+			if(_beatTask != null) _beatTask.cancel(true);
+		}
 	}
 	
 	public void stop()
