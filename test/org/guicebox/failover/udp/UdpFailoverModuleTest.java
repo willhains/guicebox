@@ -20,7 +20,7 @@ public class UdpFailoverModuleTest
 		{
 			@Override protected void configure()
 			{
-				bindConstant().annotatedWith(Environment.class).to("TEST");
+				bindConstant().annotatedWith(UserName.class).to("TEST");
 				bindConstant().annotatedWith(WellKnownAddress.class).to("1.1.1.1");
 				bindConstant().annotatedWith(GroupAddress.class).to("2.2.2.2");
 			}

@@ -44,6 +44,9 @@ public class PropertiesModule extends AbstractModule
 	
 	private final Logger _log;
 	
+	// Current user ID - used to define the environment
+	private static final String _USERNAME = System.getProperty("user.name");
+	
 	public PropertiesModule()
 	{
 		this(_loadLogHeader(), _loadPropertiesFiles());
@@ -69,7 +72,7 @@ public class PropertiesModule extends AbstractModule
 	private static List<InputStream> _loadPropertiesFiles()
 	{
 		final List<InputStream> propFiles = new ArrayList<InputStream>();
-		for(String path : Arrays.asList("properties/", "properties/" + System.getProperty("user.name") + "/"))
+		for(String path : Arrays.asList("properties/", "properties/" + _USERNAME + "/"))
 		{
 			final File propDir = new File(path);
 			try
@@ -146,6 +149,9 @@ public class PropertiesModule extends AbstractModule
 	 */
 	@Override protected final void configure()
 	{
+		// Bind the current user ID
+		bindConstant().annotatedWith(UserName.class).to(_USERNAME);
+		
 		// Find BindingAnnotations to bind
 		final StringBuilder properties = new StringBuilder(System.getProperty("line.separator"));
 		for(Object oKey : _constValues.keySet())
