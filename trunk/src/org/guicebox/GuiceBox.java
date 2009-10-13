@@ -110,7 +110,7 @@ import javax.management.*;
 	 * Starts the application by calling all the methods annotated with {@link Start}, and starting threads for all
 	 * {@link Runnable}s annotated with {@link Start}.
 	 * <p>
-	 * This method is non-blocking. It will return immediately. The {@link @Start} methods/threads will be started
+	 * This method is non-blocking. It will return immediately. The {@link Start} methods/threads will be started
 	 * asynchronously.
 	 */
 	public void start()
