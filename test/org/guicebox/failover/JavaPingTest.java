@@ -1,6 +1,5 @@
 package org.guicebox.failover;
 
-import static java.util.concurrent.TimeUnit.*;
 import static org.easymock.EasyMock.*;
 import static org.junit.Assert.*;
 
@@ -177,7 +176,7 @@ import org.junit.*;
 		// Report network errors and timeout events
 		int repeat = 2;
 		_address.isReachable(_interval * _tolerance);
-		expectLastCall().andThrow(new IOException("Fake error")).times(repeat * _tolerance);
+		expectLastCall().andThrow(new IOException("Fake error")).times(repeat);
 		_listener.onPingTimeout();
 		expectLastCall().times(repeat);
 		

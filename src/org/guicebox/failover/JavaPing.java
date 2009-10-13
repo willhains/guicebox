@@ -107,15 +107,8 @@ import org.guicebox.*;
 						}
 						catch(IOException e)
 						{
-							try
-							{
-								_log.severe("Could not verify WKA (" + failures + "/" + _pingTolerance + "): " + e);
-								Thread.sleep(_pingInterval);
-							}
-							catch(InterruptedException ee)
-							{
-								Thread.currentThread().interrupt();
-							}
+							_log.severe("Could not verify WKA: " + e);
+							break;
 						}
 					}
 					

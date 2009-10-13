@@ -28,7 +28,7 @@ import net.jcip.annotations.*;
 	private volatile int _hbInterval = 1000;
 	
 	// Number of heartbeats to miss
-	private volatile int _hbTolerance = 5;
+	private volatile int _hbTolerance = 6;
 	
 	// Send/receive threads & tasks and their locks
 	private final ScheduledExecutorService _listen, _beat;
