@@ -34,7 +34,7 @@ public abstract class FailoverModule extends AbstractModule
 		Security.setProperty("networkaddress.cache.negative.ttl", "0");
 		
 		// Failover cluster implementation
-		bind(Cluster.class).to(Failover.class);
+		bind(Cluster.class).to(Failover.class).in(Scopes.SINGLETON);
 		bind(Ping.class).to(JavaPing.class);
 		bind(Heart.class).to(NonBlockingHeart.class);
 		

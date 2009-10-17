@@ -1,6 +1,7 @@
 package org.guicebox.failover;
 
 import com.google.inject.*;
+import java.util.*;
 import java.util.logging.*;
 import net.jcip.annotations.*;
 import org.guicebox.*;
@@ -68,7 +69,7 @@ import org.guicebox.*;
 		Provider<Ping> pingFactory,
 		Logger log)
 	{
-		this(appName, env, NodeState.DISCONNECTED, node, heartFactory, pingFactory, log);
+		this(appName, env, NodeState.Impl.DISCONNECTED, node, heartFactory, pingFactory, log);
 	}
 	
 	// Should only be called from unit tests
@@ -95,6 +96,36 @@ import org.guicebox.*;
 		return _appName + " (" + _env + ")";
 	}
 	
+	@GuardedBy("_clusterLock") private final Set<ClusterListener> _listeners = new HashSet<ClusterListener>();
+	
+	public void addListener(ClusterListener listener)
+	{
+		synchronized(_clusterLock)
+		{
+			_listeners.add(listener);
+		}
+	}
+	
+	public void removeListener(ClusterListener listener)
+	{
+		synchronized(_clusterLock)
+		{
+			_listeners.remove(listener);
+		}
+	}
+	
+	private void _changeState(NodeState newState)
+	{
+		synchronized(_clusterLock)
+		{
+			_state = newState;
+			for(ClusterListener listener : _listeners)
+			{
+				listener.onClusterChange(newState == null ? null : newState.toString());
+			}
+		}
+	}
+	
 	public void join(final Application app)
 	{
 		synchronized(_clusterLock)
@@ -105,7 +136,7 @@ import org.guicebox.*;
 			if(_state != null) return;
 			
 			// Initialise the state of the node
-			_state = _initialState;
+			_changeState(_initialState);
 			_heart = _heartFactory.get();
 			_ping = _pingFactory.get();
 			
@@ -116,7 +147,7 @@ import org.guicebox.*;
 				{
 					synchronized(_clusterLock)
 					{
-						_state = _state.onWkaAlive();
+						_changeState(_state.onWkaAlive());
 					}
 				}
 				
@@ -124,7 +155,7 @@ import org.guicebox.*;
 				{
 					synchronized(_clusterLock)
 					{
-						_state = _state.onWkaDead(_heart, app);
+						_changeState(_state.onWkaDead(_heart, app));
 					}
 				}
 			});
@@ -136,7 +167,7 @@ import org.guicebox.*;
 				{
 					synchronized(_clusterLock)
 					{
-						_state = _state.onPeerAlive(_node, _heart, hb, app);
+						_changeState(_state.onPeerAlive(_node, _heart, hb, app));
 					}
 				}
 				
@@ -144,7 +175,7 @@ import org.guicebox.*;
 				{
 					synchronized(_clusterLock)
 					{
-						_state = _state.onPeerDead(_heart, app);
+						_changeState(_state.onPeerDead(_heart, app));
 					}
 				}
 			});
@@ -167,7 +198,7 @@ import org.guicebox.*;
 			_ping.stop();
 			
 			// No cluster state
-			_state = null;
+			_changeState(null);
 		}
 	}
 }

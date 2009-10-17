@@ -79,6 +79,11 @@ import org.junit.*;
 		return ping;
 	}
 	
+	@Test(expected = AssertionError.class) public void noWKAs()
+	{
+		_createPing(Collections.EMPTY_SET);
+	}
+	
 	@Test(expected = AssertionError.class) public void invalidInterval()
 	{
 		_interval = 0;

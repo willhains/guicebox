@@ -21,6 +21,7 @@ public class FailoverTest
 	private Ping _ping;
 	private Provider<Heart> _heartFactory;
 	private Provider<Ping> _pingFactory;
+	private ClusterListener _clusterListener;
 	
 	// Captures
 	private Capture<PingListener> _pingListener;
@@ -38,6 +39,7 @@ public class FailoverTest
 			_ping = createMock(Ping.class),
 			_heartFactory = createMock(Provider.class),
 			_pingFactory = createMock(Provider.class),
+			_clusterListener = createMock(ClusterListener.class),
 		//
 		};
 		expect(_heartFactory.get()).andReturn(_heart).anyTimes();
@@ -173,16 +175,24 @@ public class FailoverTest
 		_app.stop();
 		_ping.stop();
 		_heart.stop();
+		_clusterListener.onClusterChange("DISCONNECTED");
+		_clusterListener.onClusterChange("STANDBY");
+		_clusterListener.onClusterChange("VOLUNTEER");
+		_clusterListener.onClusterChange("PRIMARY");
+		_clusterListener.onClusterChange("DISCONNECTED");
+		_clusterListener.onClusterChange(null);
 		
 		replay(_mocks);
 		
 		final Failover failover = new Failover("FailoverTest", "TEST", _localhost, _heartFactory, _pingFactory, getAnonymousLogger());
+		failover.addListener(_clusterListener);
 		failover.join(_app);
 		_pingListener.getValue().onPing();
 		_hbListener.getValue().onHeartbeatTimeout();
 		_hbListener.getValue().onHeartbeatTimeout();
 		_pingListener.getValue().onPingTimeout();
 		failover.leave();
+		failover.removeListener(_clusterListener);
 		
 		verify(_mocks);
 	}

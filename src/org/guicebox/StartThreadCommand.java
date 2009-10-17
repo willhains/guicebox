@@ -1,5 +1,6 @@
 package org.guicebox;
 
+import static java.util.concurrent.TimeUnit.*;
 import static org.guicebox.NamedExecutors.*;
 
 import java.lang.reflect.*;
@@ -12,19 +13,22 @@ import java.util.concurrent.*;
  */
 final class StartThreadCommand implements Callable<Object>
 {
-	private final ExecutorService _thread;
+	private final ScheduledExecutorService _thread;
 	private Future<?> _task;
 	private final Runnable _runnable;
 	private final String _name;
+	private final long _interval;
 	
-	private StartThreadCommand(ExecutorService thread, Runnable runnable, String name)
+	private StartThreadCommand(ScheduledExecutorService thread, Runnable runnable, String name, long repeatInterval)
 	{
 		_thread = thread;
 		_runnable = runnable;
 		_name = name;
+		_interval = repeatInterval;
 	}
 	
-	public static StartThreadCommand create(Field field, String name, Object instance) throws GuiceBoxException
+	public static StartThreadCommand create(Field field, String name, long repeat, Object instance)
+		throws GuiceBoxException
 	{
 		try
 		{
@@ -38,7 +42,8 @@ final class StartThreadCommand implements Callable<Object>
 			
 			// Create the executor service
 			final String threadName = buildThreadName(name, field);
-			return new StartThreadCommand(newSingleThreadExecutor(threadName), runnable, threadName);
+			return StartThreadCommand
+				.create(newSingleThreadScheduledExecutor(threadName), runnable, threadName, repeat);
 		}
 		catch(IllegalAccessException e)
 		{
@@ -47,9 +52,9 @@ final class StartThreadCommand implements Callable<Object>
 	}
 	
 	// Called by unit tests
-	static StartThreadCommand externalExecutor(ExecutorService thread, Runnable runnable, String name)
+	static StartThreadCommand create(ScheduledExecutorService thread, Runnable runnable, String name, long repeat)
 	{
-		return new StartThreadCommand(thread, runnable, name);
+		return new StartThreadCommand(thread, runnable, name, repeat);
 	}
 	
 	static String buildThreadName(String name, Field field)
@@ -60,7 +65,9 @@ final class StartThreadCommand implements Callable<Object>
 	
 	public Object call()
 	{
-		_task = _thread.submit(_runnable);
+		_task = _interval > 0 //
+			? _thread.scheduleAtFixedRate(_runnable, 0, _interval, MILLISECONDS)
+			: _thread.submit(_runnable);
 		return null;
 	}
 	
