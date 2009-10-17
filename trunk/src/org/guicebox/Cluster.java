@@ -25,4 +25,14 @@ import com.google.inject.*;
 	 * this method when already left or leaving the cluster.
 	 */
 	void leave();
+	
+	/**
+	 * Notifies the specified listener of changes to the state of the Cluster.
+	 */
+	void addListener(ClusterListener listener);
+	
+	/**
+	 * Stops notification to the specified listener.
+	 */
+	void removeListener(ClusterListener listener);
 }

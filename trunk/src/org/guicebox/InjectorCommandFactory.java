@@ -52,7 +52,11 @@ public final class InjectorCommandFactory implements CommandFactory
 				if(start != null)
 				{
 					// Create the thread
-					final StartThreadCommand startCommand = StartThreadCommand.create(field, start.value(), instance);
+					final StartThreadCommand startCommand = StartThreadCommand.create( //
+						field,
+						start.value(),
+						start.repeat(),
+						instance);
 					
 					// Add commands to start, stop and kill the thread
 					_commands.get(Start.class).add(startCommand);

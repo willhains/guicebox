@@ -17,4 +17,14 @@ public final class Standalone implements Cluster
 	{
 		// No action required
 	}
+	
+	public void addListener(ClusterListener listener)
+	{
+		// No action required
+	}
+	
+	public void removeListener(ClusterListener listener)
+	{
+		// No action required
+	}
 }
