@@ -157,6 +157,12 @@ import org.junit.*;
 		// Should shut down the schedulers and cancel the beat & listen commands
 		expect(_beatThread.shutdownNow()).andAnswer(new _ShutdownAnswer());
 		expect(_listenThread.shutdownNow()).andAnswer(new _ShutdownAnswer());
+		_beatThread.awaitTermination(_interval, MILLISECONDS);
+		expectLastCall().andReturn(false).times(2);
+		expectLastCall().andReturn(true);
+		_listenThread.awaitTermination(_interval, MILLISECONDS);
+		expectLastCall().andReturn(false).times(2);
+		expectLastCall().andReturn(true);
 		replay(_mocks);
 		replay(beatTask, lstnTask);
 		

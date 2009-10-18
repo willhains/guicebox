@@ -11,7 +11,7 @@ import org.junit.*;
  * @param <T> the interface type whose contract is being tested.
  * @author willhains
  */
-@Ignore public abstract class GeneralContractTest<T> extends AbstractTest<T>
+public abstract class GeneralContractTest<T> extends AbstractTest<T>
 {
 	/**
 	 * @return another instance of the class under test, that is logically equivalent to the specified instance.

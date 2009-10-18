@@ -27,11 +27,9 @@ import org.guicebox.failover.*;
 	// Time to Live
 	private volatile int _ttl = 16;
 	
-	// Sockets used for sending/receiving and their locks
-	private final Object _sendLock = new Object();
-	private final Object _receiveLock = new Object();
-	@GuardedBy("_sendLock") private MulticastSocket _sendSocket;
-	@GuardedBy("_receiveLock") private MulticastSocket _receiveSocket;
+	// Sockets used for sending/receiving
+	@GuardedBy("this") private MulticastSocket _sendSocket;
+	@GuardedBy("this") private MulticastSocket _receiveSocket;
 	
 	@Inject UdpTransport(@GroupAddress String groupAddress) throws UnknownHostException
 	{
@@ -53,87 +51,82 @@ import org.guicebox.failover.*;
 		_ttl = ttl;
 	}
 	
-	public Heartbeat receive(Heartbeat ownHeartbeat, int timeout) throws TransportException, TimeoutException
+	public synchronized Heartbeat receive(Heartbeat ownHeartbeat, int timeout) throws TransportException,
+		TimeoutException
 	{
-		synchronized(_receiveLock)
-		{
-			// Loop until timeout expires
-			final long start = System.currentTimeMillis();
-			for(int remaining = timeout; remaining > 0; remaining -= System.currentTimeMillis() - start)
-			{
-				try
-				{
-					// Join the multicast group
-					if(_receiveSocket != null && _receiveSocket.getPort() != _destPort) _receiveSocket.close();
-					if(_receiveSocket == null || _receiveSocket.isClosed())
-					{
-						_receiveSocket = createSocket(_destPort);
-						_receiveSocket.joinGroup(_groupAddress);
-						_receiveSocket.setSoTimeout(remaining);
-					}
-					
-					// Timeout on thread interrupt
-					if(Thread.currentThread().isInterrupted()) throw new TimeoutException("Thread interrupted");
-					
-					// Receive the next message
-					final byte[] buf = new byte[1024];
-					final DatagramPacket msg = new DatagramPacket(buf, buf.length);
-					_receiveSocket.receive(msg);
-					
-					// Deserialise the heartbeat 
-					final Heartbeat heartbeat = decodePacket(msg);
-					
-					// Ignore own heartbeats and heartbeats from other clusters
-					if(ownHeartbeat.equals(heartbeat)) continue;
-					if(!ownHeartbeat.isSameCluster(heartbeat)) continue;
-					
-					return heartbeat;
-				}
-				catch(ClassNotFoundException e)
-				{
-					// Not a heartbeat
-				}
-				catch(ClassCastException e)
-				{
-					// Not a heartbeat
-				}
-				catch(SocketTimeoutException e)
-				{
-					// Avoid being caught as IOException
-				}
-				catch(IOException e)
-				{
-					// Wrap and re-throw
-					throw new TransportException(e);
-				}
-			}
-			
-			// Time up!
-			throw new TimeoutException();
-		}
-	}
-	
-	public void send(Heartbeat hb) throws TransportException
-	{
-		synchronized(_sendLock)
+		// Loop until timeout expires
+		final long start = System.currentTimeMillis();
+		for(int remaining = timeout; remaining > 0; remaining -= System.currentTimeMillis() - start)
 		{
 			try
 			{
-				// Connect to the multicast group
-				if(_sendSocket != null && _sendSocket.getPort() != _sourcePort) _sendSocket.close();
-				if(_sendSocket == null || _sendSocket.isClosed())
+				// Join the multicast group
+				if(_receiveSocket != null && _receiveSocket.getPort() != _destPort) _receiveSocket.close();
+				if(_receiveSocket == null || _receiveSocket.isClosed())
 				{
-					_sendSocket = createSocket(_sourcePort);
-					_sendSocket.setTimeToLive(_ttl);
+					_receiveSocket = createSocket(_destPort);
+					_receiveSocket.joinGroup(_groupAddress);
+					_receiveSocket.setSoTimeout(remaining);
 				}
 				
-				// Create & send heartbeat packet
-				_sendSocket.send(createPacket(hb, _groupAddress, _destPort));
+				// Timeout on thread interrupt
+				if(Thread.currentThread().isInterrupted()) throw new TimeoutException("Thread interrupted");
+				
+				// Receive the next message
+				final byte[] buf = new byte[1024];
+				final DatagramPacket msg = new DatagramPacket(buf, buf.length);
+				_receiveSocket.receive(msg);
+				
+				// Deserialise the heartbeat 
+				final Heartbeat heartbeat = decodePacket(msg);
+				
+				// Ignore own heartbeats and heartbeats from other clusters
+				if(ownHeartbeat.equals(heartbeat)) continue;
+				if(!ownHeartbeat.isSameCluster(heartbeat)) continue;
+				
+				return heartbeat;
+			}
+			catch(ClassNotFoundException e)
+			{
+				// Not a heartbeat
+			}
+			catch(ClassCastException e)
+			{
+				// Not a heartbeat
+			}
+			catch(SocketTimeoutException e)
+			{
+				// Avoid being caught as IOException
 			}
 			catch(IOException e)
 			{
+				// Wrap and re-throw
 				throw new TransportException(e);
 			}
+		}
+		
+		// Time up!
+		throw new TimeoutException();
+	}
+	
+	public synchronized void send(Heartbeat hb) throws TransportException
+	{
+		try
+		{
+			// Connect to the multicast group
+			if(_sendSocket != null && _sendSocket.getPort() != _sourcePort) _sendSocket.close();
+			if(_sendSocket == null || _sendSocket.isClosed())
+			{
+				_sendSocket = createSocket(_sourcePort);
+				_sendSocket.setTimeToLive(_ttl);
+			}
+			
+			// Create & send heartbeat packet
+			_sendSocket.send(createPacket(hb, _groupAddress, _destPort));
+		}
+		catch(IOException e)
+		{
+			throw new TransportException(e);
 		}
 	}
 	
@@ -151,16 +144,10 @@ import org.guicebox.failover.*;
 		return (Heartbeat)obj;
 	}
 	
-	public void disconnect()
+	public synchronized void disconnect()
 	{
-		synchronized(_receiveLock)
-		{
-			if(_receiveSocket != null) _receiveSocket.close();
-		}
-		synchronized(_sendLock)
-		{
-			if(_sendSocket != null) _sendSocket.close();
-		}
+		if(_receiveSocket != null) _receiveSocket.close();
+		if(_sendSocket != null) _sendSocket.close();
 	}
 	
 	@Override public String toString()

@@ -28,14 +28,12 @@ import net.jcip.annotations.*;
 	private volatile int _hbInterval = 1000;
 	
 	// Number of heartbeats to miss
-	private volatile int _hbTolerance = 6;
+	private volatile int _hbTolerance = 5;
 	
-	// Send/receive threads & tasks and their locks
+	// Send/receive threads & tasks
 	private final ScheduledExecutorService _listen, _beat;
-	private final Object _listenLock = new Object();
-	private final Object _beatLock = new Object();
-	@GuardedBy("_listenLock") private Future<?> _listenTask;
-	@GuardedBy("_beatLock") private Future<?> _beatTask;
+	@GuardedBy("this") private Future<?> _listenTask;
+	@GuardedBy("this") private Future<?> _beatTask;
 	
 	@Inject NonBlockingHeart(Provider<Heartbeat> pulse, Transport transport, Logger log)
 	{
@@ -74,132 +72,120 @@ import net.jcip.annotations.*;
 		_hbTolerance = tolerance;
 	}
 	
-	public void listen(final HeartbeatListener heartbeatListener)
+	public synchronized void listen(final HeartbeatListener heartbeatListener)
 	{
-		synchronized(_listenLock)
+		// Make sure we don't have multiple listeners running
+		stopListening();
+		
+		// Start listening
+		final Heartbeat ownHeartbeat = _pulse.get();
+		final Runnable listen = new Runnable()
 		{
-			// Make sure we don't have multiple listeners running
-			stopListening();
-			
-			// Start listening
-			final Heartbeat ownHeartbeat = _pulse.get();
-			final Runnable listen = new Runnable()
+			public void run()
 			{
-				public void run()
+				for(int failures = 1; failures <= _hbTolerance; failures++)
 				{
-					for(int failures = 1; failures <= _hbTolerance; failures++)
+					// Abort if interrupted
+					if(Thread.currentThread().isInterrupted())
 					{
-						// Abort if interrupted
-						if(Thread.currentThread().isInterrupted())
-						{
-							_log.info("Heartbeat listener interrupted. Shutting down.");
-							return;
-						}
-						
-						try
-						{
-							// Receive heartbeat
-							final Heartbeat heartbeat = _transport.receive(ownHeartbeat, _hbInterval);
-							
-							// Received successfully
-							_log.finest("Received heartbeat: " + heartbeat);
-							heartbeatListener.onHeartbeat(heartbeat);
-							return;
-						}
-						catch(TimeoutException e)
-						{
-							_log.fine("Time out (" + failures + "/" + _hbTolerance + ")");
-						}
-						catch(TransportException e)
-						{
-							try
-							{
-								_log.severe("Could not read heartbeat (" + failures + "/" + _hbTolerance + "): " + e);
-								Thread.sleep(_hbInterval);
-							}
-							catch(InterruptedException ee)
-							{
-								Thread.currentThread().interrupt();
-							}
-						}
+						_log.finest("Heartbeat listener stopped");
+						return;
 					}
 					
-					// Beyond tolerance - notify listener
-					heartbeatListener.onHeartbeatTimeout();
-				}
-			};
-			_listenTask = _listen.scheduleWithFixedDelay(listen, 0, 1, MILLISECONDS);
-		}
-	}
-	
-	public void beat()
-	{
-		synchronized(_beatLock)
-		{
-			// Make sure we don't have multiple hearbeaters running
-			stopBeating();
-			
-			// Start beating
-			final Runnable beat = new Runnable()
-			{
-				public void run()
-				{
-					for(int failures = 0; failures < _hbTolerance; failures++)
+					try
 					{
-						// Abort if interrupted
-						if(Thread.currentThread().isInterrupted())
-						{
-							_log.info("Heartbeat sender interrupted. Shutting down.");
-							return;
-						}
+						// Receive heartbeat
+						final Heartbeat heartbeat = _transport.receive(ownHeartbeat, _hbInterval);
 						
+						// Received successfully
+						_log.finest("Received heartbeat: " + heartbeat);
+						heartbeatListener.onHeartbeat(heartbeat);
+						return;
+					}
+					catch(TimeoutException e)
+					{
+						_log.fine("Time out (" + failures + "/" + _hbTolerance + ")");
+					}
+					catch(TransportException e)
+					{
 						try
 						{
-							// Send heartbeat
-							final Heartbeat heartbeat = _pulse.get();
-							_transport.send(heartbeat);
-							
-							// Sent successfully
-							_log.finest("Sent heartbeat: " + heartbeat);
-							return;
+							_log.severe("Could not read heartbeat (" + failures + "/" + _hbTolerance + "): " + e);
+							Thread.sleep(_hbInterval);
 						}
-						catch(TransportException e)
+						catch(InterruptedException ee)
 						{
-							try
-							{
-								_log.severe("Couldn't send heartbeat (" + failures + "/" + _hbTolerance + "): " + e);
-								Thread.sleep(_hbInterval);
-							}
-							catch(InterruptedException ee)
-							{
-								Thread.currentThread().interrupt();
-							}
+							Thread.currentThread().interrupt();
 						}
 					}
-					
-					// Beyond tolerance - stop beating
-					_log.severe(NonBlockingHeart.class.getSimpleName() + " failure");
-					stopBeating();
 				}
-			};
-			_beatTask = _beat.scheduleAtFixedRate(beat, 0, _hbInterval, MILLISECONDS);
-		}
+				
+				// Beyond tolerance - notify listener
+				heartbeatListener.onHeartbeatTimeout();
+			}
+		};
+		_listenTask = _listen.scheduleWithFixedDelay(listen, 0, 1, MILLISECONDS);
 	}
 	
-	public void stopListening()
+	public synchronized void beat()
 	{
-		synchronized(_listenLock)
+		// Make sure we don't have multiple hearbeaters running
+		stopBeating();
+		
+		// Start beating
+		final Runnable beat = new Runnable()
 		{
-			if(_listenTask != null) _listenTask.cancel(true);
-		}
+			public void run()
+			{
+				for(int failures = 0; failures < _hbTolerance; failures++)
+				{
+					// Abort if interrupted
+					if(Thread.currentThread().isInterrupted())
+					{
+						_log.finest("Heartbeat sender stopped");
+						return;
+					}
+					
+					try
+					{
+						// Send heartbeat
+						final Heartbeat heartbeat = _pulse.get();
+						_transport.send(heartbeat);
+						
+						// Sent successfully
+						_log.finest("Sent heartbeat: " + heartbeat);
+						return;
+					}
+					catch(TransportException e)
+					{
+						try
+						{
+							_log.severe("Couldn't send heartbeat (" + failures + "/" + _hbTolerance + "): " + e);
+							Thread.sleep(_hbInterval);
+						}
+						catch(InterruptedException ee)
+						{
+							Thread.currentThread().interrupt();
+						}
+					}
+				}
+				
+				// Beyond tolerance - stop beating
+				_log.severe("NonBlockingHeart failure");
+				stopBeating();
+			}
+		};
+		_beatTask = _beat.scheduleAtFixedRate(beat, 0, _hbInterval, MILLISECONDS);
 	}
 	
-	public void stopBeating()
+	public synchronized void stopListening()
 	{
-		synchronized(_beatLock)
-		{
-			if(_beatTask != null) _beatTask.cancel(true);
-		}
+		if(_listenTask != null) _listenTask.cancel(true);
+	}
+	
+	public synchronized void stopBeating()
+	{
+		if(_beatTask != null) _beatTask.cancel(true);
 	}
 	
 	public void stop()
@@ -207,5 +193,25 @@ import net.jcip.annotations.*;
 		// Shut down the executors
 		_beat.shutdownNow();
 		_listen.shutdownNow();
+		
+		try
+		{
+			// Wait for the executors to terminate
+			while(!_beat.awaitTermination(_hbInterval, MILLISECONDS))
+			{
+				_log.finest("Waiting for heartbeating to terminate...");
+			}
+			_log.finest("Heartbeating terminated");
+			while(!_listen.awaitTermination(_hbInterval, MILLISECONDS))
+			{
+				_log.finest("Waiting for heartbeat listening to terminate...");
+			}
+			_log.finest("Hearbeat listening terminated");
+		}
+		catch(InterruptedException e)
+		{
+			// Restore interrupted status and return
+			Thread.currentThread().interrupt();
+		}
 	}
 }

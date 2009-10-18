@@ -15,7 +15,6 @@ import net.jcip.annotations.*;
 	
 	private final String _address;
 	private final String _processId;
-	private transient boolean _preferLowerOlder = true;
 	
 	@Inject public Node(@Localhost String address, @ProcessId String processId)
 	{
@@ -24,11 +23,6 @@ import net.jcip.annotations.*;
 		
 		_processId = processId;
 		_address = address;
-	}
-	
-	@Inject(optional = true) void setFailDirection(@FailDirection boolean preferLowerOlder)
-	{
-		_preferLowerOlder = preferLowerOlder;
 	}
 	
 	// Should only be called by JUnit tests
@@ -48,8 +42,7 @@ import net.jcip.annotations.*;
 	 */
 	public boolean isSuperiorTo(Node that)
 	{
-		final boolean lowerOlder = this.compareTo(that) < 0;
-		return _preferLowerOlder ? lowerOlder : !lowerOlder;
+		return this.compareTo(that) < 0;
 	}
 	
 	/**

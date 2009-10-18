@@ -1,8 +1,0 @@
-The properties directory is the place to put external configuration for your application.
-The .properties files included in this distribution are samples.
-
-The main properties directory is the place for common configuration, which will be used in all environments.
-Sub-directories should match the usernames of the user accounts that the application will run in. For example,
-you may have different user accounts used for Development, QA, UAT and Production environments. By placing
-different versions of your .properties files in these sub-directories, you can apply environment-specific
-configuration safely.

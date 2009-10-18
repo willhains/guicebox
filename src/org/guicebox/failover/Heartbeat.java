@@ -4,7 +4,6 @@ import com.google.inject.*;
 import java.io.*;
 import java.util.concurrent.atomic.*;
 import net.jcip.annotations.*;
-import org.guicebox.*;
 
 /**
  * A heartbeat message, containing the application (cluster) name, node status and process fingerprint.
@@ -21,7 +20,7 @@ import org.guicebox.*;
 	// Node ID
 	private final Node _info;
 	
-	@Inject public Heartbeat(@ApplicationName String appName, @UserName String env, Node info)
+	@Inject public Heartbeat(@ApplicationName String appName, @Environment String env, Node info)
 	{
 		_appName = appName;
 		_env = env;
@@ -39,7 +38,7 @@ import org.guicebox.*;
 	}
 	
 	/**
-	 * @return {@code true} if the specified heartbeat has the same {@link ApplicationName} and {@link UserName}.
+	 * @return {@code true} if the specified heartbeat has the same {@link ApplicationName} and {@link Environment}.
 	 */
 	public boolean isSameCluster(final Heartbeat that)
 	{
@@ -80,7 +79,7 @@ import org.guicebox.*;
 	
 	// Unique sequence number - for logging only
 	private static final AtomicLong _SEQ = new AtomicLong();
-	private final String _seqNo = Long.toString(_SEQ.incrementAndGet());
+	private final long _seqNo = _SEQ.incrementAndGet();
 	
 	@Override public String toString()
 	{

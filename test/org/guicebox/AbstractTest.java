@@ -9,7 +9,7 @@ import org.junit.*;
  * @param <T> the interface contract being tested.
  * @author willhains
  */
-@Ignore public abstract class AbstractTest<T>
+public abstract class AbstractTest<T>
 {
 	private T _imp;
 	

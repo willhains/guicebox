@@ -7,8 +7,7 @@ import com.google.inject.*;
 import java.lang.annotation.*;
 
 /**
- * The comma-or-whitespace-separated hostnames or IP addresses of the machines to ping to test network availability.
- * Talk to your network administrator about what values to use.
+ * The hostname or IP address of the machine to ping. Talk to your network administrator about what value to use.
  * 
  * @author willhains
  */

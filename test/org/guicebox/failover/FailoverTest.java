@@ -1,11 +1,10 @@
 package org.guicebox.failover;
 
-import static java.util.logging.Logger.*;
 import static org.easymock.EasyMock.*;
 
 import com.google.inject.*;
-import org.easymock.*;
 import org.guicebox.*;
+import org.easymock.*;
 import org.junit.*;
 
 /**
@@ -21,7 +20,6 @@ public class FailoverTest
 	private Ping _ping;
 	private Provider<Heart> _heartFactory;
 	private Provider<Ping> _pingFactory;
-	private ClusterListener _clusterListener;
 	
 	// Captures
 	private Capture<PingListener> _pingListener;
@@ -39,7 +37,6 @@ public class FailoverTest
 			_ping = createMock(Ping.class),
 			_heartFactory = createMock(Provider.class),
 			_pingFactory = createMock(Provider.class),
-			_clusterListener = createMock(ClusterListener.class),
 		//
 		};
 		expect(_heartFactory.get()).andReturn(_heart).anyTimes();
@@ -58,7 +55,7 @@ public class FailoverTest
 	
 	private Failover _joinCluster()
 	{
-		final Failover failover = new Failover("FailoverTest", "TEST", _state, _localhost, _heartFactory, _pingFactory, getAnonymousLogger());
+		final Failover failover = new Failover(_state, _localhost, _heartFactory, _pingFactory);
 		failover.join(_app);
 		return failover;
 	}
@@ -175,24 +172,16 @@ public class FailoverTest
 		_app.stop();
 		_ping.stop();
 		_heart.stop();
-		_clusterListener.onClusterChange("DISCONNECTED");
-		_clusterListener.onClusterChange("STANDBY");
-		_clusterListener.onClusterChange("VOLUNTEER");
-		_clusterListener.onClusterChange("PRIMARY");
-		_clusterListener.onClusterChange("DISCONNECTED");
-		_clusterListener.onClusterChange(null);
 		
 		replay(_mocks);
 		
-		final Failover failover = new Failover("FailoverTest", "TEST", _localhost, _heartFactory, _pingFactory, getAnonymousLogger());
-		failover.addListener(_clusterListener);
+		final Failover failover = new Failover(_localhost, _heartFactory, _pingFactory);
 		failover.join(_app);
 		_pingListener.getValue().onPing();
 		_hbListener.getValue().onHeartbeatTimeout();
 		_hbListener.getValue().onHeartbeatTimeout();
 		_pingListener.getValue().onPingTimeout();
 		failover.leave();
-		failover.removeListener(_clusterListener);
 		
 		verify(_mocks);
 	}
