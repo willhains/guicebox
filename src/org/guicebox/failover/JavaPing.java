@@ -50,24 +50,23 @@ import org.guicebox.*;
 			log);
 	}
 	
+	// Should only be called from unit tests
+	JavaPing(Set<InetAddress> wka, ScheduledExecutorService pingThread, Logger log)
+	{
+		_wka = new LinkedList<InetAddress>(wka);
+		_ping = pingThread;
+		_log = log;
+	}
+	
 	private static Set<InetAddress> _parseSet(String addresses) throws UnknownHostException
 	{
-		assert addresses != null && addresses.trim().length() > 0 : "No WKAs provided!";
+		assert addresses != null : "WKAs must be set";
 		final Set<InetAddress> wkaSet = new LinkedHashSet<InetAddress>();
 		for(String wka : addresses.split("[,;\\s]"))
 		{
 			if(wka.length() > 0) wkaSet.add(new InetAddressAdapter(wka));
 		}
 		return wkaSet;
-	}
-	
-	// Should only be called from unit tests
-	JavaPing(Set<InetAddress> wka, ScheduledExecutorService pingThread, Logger log)
-	{
-		assert wka != null && wka.size() > 0 : "No WKAs provided!";
-		_wka = new LinkedList<InetAddress>(wka);
-		_ping = pingThread;
-		_log = log;
 	}
 	
 	@Inject(optional = true) void setPingInterval(@PingInterval int interval)

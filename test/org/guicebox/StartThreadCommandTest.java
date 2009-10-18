@@ -1,6 +1,5 @@
 package org.guicebox;
 
-import static java.util.concurrent.TimeUnit.*;
 import static org.easymock.EasyMock.*;
 import static org.junit.Assert.*;
 
@@ -16,7 +15,7 @@ public class StartThreadCommandTest
 {
 	// Mocks
 	private Object[] _mocks;
-	private ScheduledExecutorService _thread;
+	private ExecutorService _thread;
 	private Runnable _runnable;
 	
 	@Start public Runnable simple;
@@ -24,9 +23,7 @@ public class StartThreadCommandTest
 	
 	@Before public void createMocks()
 	{
-		_mocks = new Object[] {
-			_thread = createMock(ScheduledExecutorService.class),
-			_runnable = createMock(Runnable.class) };
+		_mocks = new Object[] { _thread = createMock(ExecutorService.class), _runnable = createMock(Runnable.class) };
 	}
 	
 	@Test public void simpleThread() throws Throwable
@@ -47,7 +44,7 @@ public class StartThreadCommandTest
 	
 	@Test public void commandNames() throws Throwable
 	{
-		final StartThreadCommand cmd = StartThreadCommand.create(_thread, _runnable, "mock", 0);
+		final StartThreadCommand cmd = StartThreadCommand.externalExecutor(_thread, _runnable, "mock");
 		assertEquals("Start mock", cmd.toString());
 		assertEquals("Stop mock", cmd.getStopCommand().toString());
 		assertEquals("Kill mock", cmd.getKillCommand().toString());
@@ -59,19 +56,7 @@ public class StartThreadCommandTest
 		
 		replay(_mocks);
 		
-		final StartThreadCommand cmd = StartThreadCommand.create(_thread, _runnable, "mock", 0);
-		cmd.call();
-		
-		verify(_mocks);
-	}
-	
-	@Test public void repeating() throws Throwable
-	{
-		expect(_thread.scheduleAtFixedRate(_runnable, 0, 10, MILLISECONDS)).andReturn(null);
-		
-		replay(_mocks);
-		
-		final StartThreadCommand cmd = StartThreadCommand.create(_thread, _runnable, "mock", 10);
+		final StartThreadCommand cmd = StartThreadCommand.externalExecutor(_thread, _runnable, "mock");
 		cmd.call();
 		
 		verify(_mocks);
@@ -83,7 +68,7 @@ public class StartThreadCommandTest
 		
 		replay(_mocks);
 		
-		final StartThreadCommand cmd = StartThreadCommand.create(_thread, _runnable, "mock", 0);
+		final StartThreadCommand cmd = StartThreadCommand.externalExecutor(_thread, _runnable, "mock");
 		cmd.call();
 		cmd.getStopCommand().call();
 		
@@ -96,7 +81,7 @@ public class StartThreadCommandTest
 		
 		replay(_mocks);
 		
-		final StartThreadCommand cmd = StartThreadCommand.create(_thread, _runnable, "mock", 0);
+		final StartThreadCommand cmd = StartThreadCommand.externalExecutor(_thread, _runnable, "mock");
 		cmd.getStopCommand().call();
 		cmd.call();
 		
@@ -111,7 +96,7 @@ public class StartThreadCommandTest
 		
 		replay(_mocks);
 		
-		final StartThreadCommand cmd = StartThreadCommand.create(_thread, _runnable, "mock", 0);
+		final StartThreadCommand cmd = StartThreadCommand.externalExecutor(_thread, _runnable, "mock");
 		cmd.getKillCommand().call();
 		cmd.getStopCommand().call();
 		cmd.call();
@@ -127,7 +112,7 @@ public class StartThreadCommandTest
 		
 		replay(_mocks);
 		
-		final StartThreadCommand cmd = StartThreadCommand.create(_thread, _runnable, "mock", 0);
+		final StartThreadCommand cmd = StartThreadCommand.externalExecutor(_thread, _runnable, "mock");
 		cmd.call();
 		Thread.currentThread().interrupt();
 		cmd.getKillCommand().call();

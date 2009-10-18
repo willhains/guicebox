@@ -67,9 +67,9 @@ public class GuiceBoxTest
 		}).anyTimes();
 	}
 	
-	private GuiceBox.Impl _newGuiceBox()
+	private GuiceBox _newGuiceBox()
 	{
-		return new GuiceBox.Impl(_cmdFactory, _cluster, _gbThread, _hook, _jmxServer, Logger.getAnonymousLogger());
+		return new GuiceBox(_cmdFactory, _cluster, _gbThread, _hook, _jmxServer, Logger.getAnonymousLogger());
 	}
 	
 	@Test public void start() throws Throwable
@@ -78,11 +78,10 @@ public class GuiceBoxTest
 		expectLastCall().andAnswer(_appStart);
 		expect(_cmdFactory.getCommands(Start.class)).andReturn(Collections.<Callable<?>> singleton(_start));
 		expect(_start.call()).andReturn(null);
-		expect(_gbThread.isShutdown()).andReturn(false);
 		
 		replay(_mocks);
 		
-		final GuiceBox.Impl gb = _newGuiceBox();
+		final GuiceBox gb = _newGuiceBox();
 		gb.start();
 		
 		verify(_mocks);
@@ -97,11 +96,10 @@ public class GuiceBoxTest
 		_cluster.leave();
 		expect(_cmdFactory.getCommands(Stop.class)).andReturn(Collections.<Callable<?>> singleton(_stop));
 		expect(_stop.call()).andReturn(null);
-		expect(_gbThread.isShutdown()).andReturn(false).times(2);
 		
 		replay(_mocks);
 		
-		final GuiceBox.Impl gb = _newGuiceBox();
+		final GuiceBox gb = _newGuiceBox();
 		gb.start();
 		gb.stop();
 		
@@ -115,11 +113,10 @@ public class GuiceBoxTest
 		expect(_start.call()).andReturn(null);
 		expect(_cmdFactory.getCommands(Stop.class)).andReturn(Collections.<Callable<?>> singleton(_stop));
 		expect(_stop.call()).andReturn(null);
-		expect(_gbThread.isShutdown()).andReturn(false).times(2);
 		
 		replay(_mocks);
 		
-		final GuiceBox.Impl gb = _newGuiceBox();
+		final GuiceBox gb = _newGuiceBox();
 		gb.start();
 		_app.getValue().start();
 		_app.getValue().stop();
@@ -142,11 +139,10 @@ public class GuiceBoxTest
 		expect(_cmdFactory.getCommands(Kill.class)).andReturn(Collections.<Callable<?>> singleton(_kill));
 		expect(_kill.call()).andReturn(null);
 		expect(_gbThread.shutdownNow()).andReturn(null);
-		expect(_gbThread.isShutdown()).andReturn(false).times(5);
 		
 		replay(_mocks);
 		
-		final GuiceBox.Impl gb = _newGuiceBox();
+		final GuiceBox gb = _newGuiceBox();
 		gb.start();
 		_app.getValue().start();
 		_app.getValue().stop();
@@ -164,11 +160,10 @@ public class GuiceBoxTest
 		expect(_cmdFactory.getCommands(Kill.class)).andReturn(Collections.<Callable<?>> singleton(_kill));
 		expect(_kill.call()).andReturn(null);
 		expect(_gbThread.shutdownNow()).andReturn(null);
-		expect(_gbThread.isShutdown()).andReturn(false);
 		
 		replay(_mocks);
 		
-		final GuiceBox.Impl gb = _newGuiceBox();
+		final GuiceBox gb = _newGuiceBox();
 		gb.start();
 		gb.kill();
 		
@@ -187,11 +182,10 @@ public class GuiceBoxTest
 		expect(_cmdFactory.getCommands(Kill.class)).andReturn(Collections.<Callable<?>> singleton(_kill));
 		expect(_kill.call()).andReturn(null);
 		expect(_gbThread.shutdownNow()).andReturn(null);
-		expect(_gbThread.isShutdown()).andReturn(false).times(2);
 		
 		replay(_mocks);
 		
-		final GuiceBox.Impl gb = _newGuiceBox();
+		final GuiceBox gb = _newGuiceBox();
 		gb.start();
 		gb.kill();
 		
@@ -201,11 +195,10 @@ public class GuiceBoxTest
 	@Test public void stopUnstarted() throws Throwable
 	{
 		_cluster.leave();
-		expect(_gbThread.isShutdown()).andReturn(false);
 		
 		replay(_mocks);
 		
-		final GuiceBox.Impl gb = _newGuiceBox();
+		final GuiceBox gb = _newGuiceBox();
 		gb.stop();
 		
 		verify(_mocks);
@@ -217,11 +210,10 @@ public class GuiceBoxTest
 		expect(_cmdFactory.getCommands(Kill.class)).andReturn(Collections.<Callable<?>> singleton(_kill));
 		expect(_kill.call()).andReturn(null);
 		expect(_gbThread.shutdownNow()).andReturn(null);
-		expect(_gbThread.isShutdown()).andReturn(false);
 		
 		replay(_mocks);
 		
-		final GuiceBox.Impl gb = _newGuiceBox();
+		final GuiceBox gb = _newGuiceBox();
 		gb.kill();
 		
 		verify(_mocks);
@@ -237,11 +229,10 @@ public class GuiceBoxTest
 		expect(_cmdFactory.getCommands(Stop.class)).andReturn(Collections.<Callable<?>> singleton(_stop));
 		expect(_stop.call()).andReturn(null);
 		_cluster.leave();
-		expect(_gbThread.isShutdown()).andReturn(false).times(3);
 		
 		replay(_mocks);
 		
-		final GuiceBox.Impl gb = _newGuiceBox();
+		final GuiceBox gb = _newGuiceBox();
 		gb.start();
 		gb.stop();
 		gb.stop();
@@ -257,11 +248,10 @@ public class GuiceBoxTest
 		expect(_start.call()).andReturn(null);
 		_cluster.join(capture(_app));
 		expectLastCall().andAnswer(_appStart);
-		expect(_gbThread.isShutdown()).andReturn(false).times(2);
 		
 		replay(_mocks);
 		
-		final GuiceBox.Impl gb = _newGuiceBox();
+		final GuiceBox gb = _newGuiceBox();
 		gb.start();
 		gb.start();
 		
@@ -278,11 +268,10 @@ public class GuiceBoxTest
 		expect(_cmdFactory.getCommands(Kill.class)).andReturn(Collections.<Callable<?>> singleton(_kill));
 		expect(_kill.call()).andReturn(null);
 		expect(_gbThread.shutdownNow()).andReturn(Collections.<Runnable> emptyList());
-		expect(_gbThread.isShutdown()).andReturn(false).times(2);
 		
 		replay(_mocks);
 		
-		final GuiceBox.Impl gb = _newGuiceBox();
+		final GuiceBox gb = _newGuiceBox();
 		gb.start();
 		
 		verify(_mocks);
@@ -297,11 +286,10 @@ public class GuiceBoxTest
 		_cluster.leave();
 		expect(_cmdFactory.getCommands(Stop.class)).andReturn(Collections.<Callable<?>> singleton(_stop));
 		expect(_stop.call()).andThrow(new Exception("Fake error"));
-		expect(_gbThread.isShutdown()).andReturn(false).times(2);
 		
 		replay(_mocks);
 		
-		final GuiceBox.Impl gb = _newGuiceBox();
+		final GuiceBox gb = _newGuiceBox();
 		gb.start();
 		gb.stop();
 		
@@ -321,11 +309,10 @@ public class GuiceBoxTest
 		expect(_cmdFactory.getCommands(Kill.class)).andReturn(Collections.<Callable<?>> singleton(_kill));
 		expect(_kill.call()).andThrow(new Exception("Fake error"));
 		expect(_gbThread.shutdownNow()).andReturn(Collections.<Runnable> emptyList());
-		expect(_gbThread.isShutdown()).andReturn(false).times(3);
 		
 		replay(_mocks);
 		
-		final GuiceBox.Impl gb = _newGuiceBox();
+		final GuiceBox gb = _newGuiceBox();
 		gb.start();
 		gb.stop();
 		gb.kill();
@@ -345,11 +332,10 @@ public class GuiceBoxTest
 		expect(_cmdFactory.getCommands(Kill.class)).andReturn(Collections.<Callable<?>> singleton(_kill));
 		expect(_kill.call()).andReturn(null);
 		expect(_gbThread.shutdownNow()).andReturn(Collections.<Runnable> emptyList());
-		expect(_gbThread.isShutdown()).andReturn(false).times(2);
 		
 		replay(_mocks);
 		
-		final GuiceBox.Impl gb = _newGuiceBox();
+		final GuiceBox gb = _newGuiceBox();
 		gb.start();
 		_shutdownTrigger.getValue().run();
 		
@@ -366,7 +352,7 @@ public class GuiceBoxTest
 		
 		replay(_mocks);
 		
-		final GuiceBox.Impl gb = _newGuiceBox();
+		final GuiceBox gb = _newGuiceBox();
 		gb.registerJMX();
 		assertSame(gb, object.getValue());
 		

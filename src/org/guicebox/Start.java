@@ -16,6 +16,4 @@ import java.lang.annotation.*;
 	 * For annotated {@link Runnable}s, the value will be used as the thread name.
 	 */
 	String value() default "";
-	
-	long repeat() default 0L;
 }
