@@ -4,3 +4,4 @@
     * [GettingStarted Getting Started Guide]
     * [PropertiesModule]
     * [CommandLineModule]
+ * [http://guicebox.googlecode.com/svn/trunk/javadoc/index.html Javadoc]
