@@ -1,4 +1,4 @@
- * [Overview GuiceBox Overview]
+ * [GuiceBox GuiceBox Overview]
  * [HotFailover Hot Failover]
  * How to articles
     * [GettingStarted Getting Started Guide]
