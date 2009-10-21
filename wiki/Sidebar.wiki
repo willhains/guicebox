@@ -1,5 +1,6 @@
-GuiceBox
-HotFailover
-GettingStarted
-PropertiesModule
-CommandLineModule	
+ * [GuiceBox GuiceBox Overview]
+ * [HotFailover Hot Failover]
+ * How to articles
+    * [GettingStarted Getting Started Guide]
+    * [PropertiesModule]
+    * [CommandLineModule]
