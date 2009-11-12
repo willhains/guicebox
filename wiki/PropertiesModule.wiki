@@ -14,7 +14,7 @@ Firstly, you'll need to wire a `PropertiesModule` instance to GuiceBox like this
 final GuiceBox guicebox = GuiceBox.init(new PropertiesModule());
 }}}
 This will set up GuiceBox to automatically detect `.properties` files in your environment.
-ú
+
 == Create Binding Annoations ==
 Secondly, you'll want to create some binding annotations for your constants. There are two patterns for this: required, and optional.
 
