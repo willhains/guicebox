@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="MacRoman" standalone="no"?>
 <jardesc>
-    <jar path="GuiceBox/guicebox-0.3.jar"/>
+    <jar path="GuiceBox/guicebox-dev.jar"/>
     <options buildIfNeeded="true" compress="true" descriptionLocation="/GuiceBox/GuiceBox.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="true" overwrite="false" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
     <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
     <selectedProjects/>
