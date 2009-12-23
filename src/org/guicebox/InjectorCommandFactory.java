@@ -5,6 +5,7 @@ import java.lang.annotation.*;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.logging.*;
 
 /**
  * Scans the Guice {@link Injector} for implementation classes that contain the GuiceBox {@link Start}, {@link Stop} and
@@ -14,11 +15,15 @@ import java.util.concurrent.*;
  */
 public final class InjectorCommandFactory implements CommandFactory
 {
+	private final Logger _log;
+	
 	// Start/Stop/Kill method invocations
 	private final Map<Class<? extends Annotation>, List<Callable<?>>> _commands;
 	
-	@Inject InjectorCommandFactory(Injector injector) throws GuiceBoxException
+	@Inject InjectorCommandFactory(Injector injector, Logger log) throws GuiceBoxException
 	{
+		_log = log;
+		
 		// Initialise command lists
 		_commands = new HashMap<Class<? extends Annotation>, List<Callable<?>>>();
 		_commands.put(Start.class, new LinkedList<Callable<?>>());
@@ -28,6 +33,8 @@ public final class InjectorCommandFactory implements CommandFactory
 		// GuiceBox can only see classes that were specifically bound by the application's Modules
 		for(final Binding<?> binding : injector.getBindings().values())
 		{
+			_log.finest("GuiceBox: scanning binding: " + binding);
+			
 			// Will need an instance of each GuiceBoxed class to call its methods
 			final Key<?> key = binding.getKey();
 			final Object instance = injector.getInstance(key);
@@ -40,7 +47,13 @@ public final class InjectorCommandFactory implements CommandFactory
 				for(Class<? extends Annotation> a : _commands.keySet())
 				{
 					// Create command to invoke method
-					if(method.getAnnotation(a) != null) _commands.get(a).add(new InvokeMethodCommand(method, instance));
+					if(method.getAnnotation(a) != null)
+					{
+						
+						final InvokeMethodCommand invokeCommand = new InvokeMethodCommand(method, instance);
+						_log.fine("GuiceBox: " + a.getSimpleName() + " method added: " + invokeCommand);
+						_commands.get(a).add(invokeCommand);
+					}
 				}
 			}
 			
