@@ -6,6 +6,7 @@ import static org.junit.Assert.*;
 import com.google.inject.*;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.logging.*;
 import org.junit.*;
 
 /**
@@ -16,7 +17,7 @@ public class InjectorCommandFactoryTest
 	@Test public void good() throws Throwable
 	{
 		final Injector injector = Guice.createInjector(new GoodModule());
-		final CommandFactory cf = new InjectorCommandFactory(injector);
+		final CommandFactory cf = new InjectorCommandFactory(injector, Logger.getAnonymousLogger());
 		
 		final List<String> start = Arrays.asList("StartMethodImpl.startMe()", "Start StartRunnableField.spawnMe");
 		for(Callable<?> cmd : cf.getCommands(Start.class))
@@ -38,13 +39,13 @@ public class InjectorCommandFactoryTest
 	@Test(expected = GuiceBoxException.class) public void bad1() throws Throwable
 	{
 		final Injector injector = Guice.createInjector(new BadModule1());
-		new InjectorCommandFactory(injector);
+		new InjectorCommandFactory(injector, Logger.getAnonymousLogger());
 	}
 	
 	@Test(expected = GuiceBoxException.class) public void bad2() throws Throwable
 	{
 		final Injector injector = Guice.createInjector(new BadModule2());
-		new InjectorCommandFactory(injector);
+		new InjectorCommandFactory(injector, Logger.getAnonymousLogger());
 	}
 }
 
