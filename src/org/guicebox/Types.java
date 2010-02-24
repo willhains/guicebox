@@ -17,7 +17,7 @@ public final class Types
 	/**
 	 * Utility method to reflectively determine all of the supertypes, including interfaces, of the given type.
 	 */
-	public static List<Class<?>> inheritedBy(Class<?> type)
+	public static List<Class<?>> inheritedBy(final Class<?> type)
 	{
 		final List<Class<?>> allTypes = new ArrayList<Class<?>>();
 		if(type != null)

@@ -39,20 +39,23 @@ public final class InjectorCommandFactory implements CommandFactory
 			final Key<?> key = binding.getKey();
 			final Object instance = injector.getInstance(key);
 			final Class<?> impl = instance.getClass();
-			
-			// Search for GuiceBox methods
-			for(final Method method : impl.getDeclaredMethods())
+
+			// Search all supertypes of implementation class
+			for(final Class<?> type : Types.inheritedBy(impl))
 			{
-				// Determine which GuiceBox annotations the method has, if any
-				for(Class<? extends Annotation> a : _commands.keySet())
+				// Search for GuiceBox methods
+				for(final Method method : impl.getDeclaredMethods())
 				{
-					// Create command to invoke method
-					if(method.getAnnotation(a) != null)
+					// Determine which GuiceBox annotations the method has, if any
+					for(Class<? extends Annotation> a : _commands.keySet())
 					{
-						
-						final InvokeMethodCommand invokeCommand = new InvokeMethodCommand(method, instance);
-						_log.fine("GuiceBox: " + a.getSimpleName() + " method added: " + invokeCommand);
-						_commands.get(a).add(invokeCommand);
+						// Create command to invoke method
+						if(method.getAnnotation(a) != null)
+						{
+							final InvokeMethodCommand invokeCommand = new InvokeMethodCommand(method, instance);
+							_log.fine("GuiceBox: " + a.getSimpleName() + " method added: " + invokeCommand);
+							_commands.get(a).add(invokeCommand);
+						}
 					}
 				}
 			}
