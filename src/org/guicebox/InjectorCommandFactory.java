@@ -44,7 +44,7 @@ public final class InjectorCommandFactory implements CommandFactory
 			for(final Class<?> type : Types.inheritedBy(impl))
 			{
 				// Search for GuiceBox methods
-				for(final Method method : impl.getDeclaredMethods())
+				for(final Method method : type.getDeclaredMethods())
 				{
 					// Determine which GuiceBox annotations the method has, if any
 					for(Class<? extends Annotation> a : _commands.keySet())

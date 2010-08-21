@@ -24,12 +24,12 @@ public class InjectorCommandFactoryTest
 		{
 			assertTrue(start.contains(cmd.toString()));
 		}
-		final List<String> stop = Arrays.asList("StopKillMethods.stopMe()", "Stop StartRunnableField.spawnMe");
+		final List<String> stop = Arrays.asList("StopKillMethodsImpl.stopMe()", "Stop StartRunnableField.spawnMe");
 		for(Callable<?> cmd : cf.getCommands(Stop.class))
 		{
-			assertTrue(stop.contains(cmd.toString()));
+			assertTrue("Couldn't find " + cmd.toString() + " command", stop.contains(cmd.toString()));
 		}
-		final List<String> kill = Arrays.asList("StopKillMethods.killMe()", "Kill StartRunnableField.spawnMe");
+		final List<String> kill = Arrays.asList("StopKillMethodsImpl.killMe()", "Kill StartRunnableField.spawnMe");
 		for(Callable<?> cmd : cf.getCommands(Kill.class))
 		{
 			assertTrue(kill.contains(cmd.toString()));
